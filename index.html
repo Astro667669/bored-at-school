@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>🎮 Game Launcher</title>
+<style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 40px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .game-link {
+      display: block;
+      margin: 15px auto;
+      padding: 15px 30px;
+      background-color: #333;
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      width: 280px;
+      transition: background 0.3s;
+    }
+    .game-link:hover {
+      background-color: #555;
+    }
+    #fakeOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: 9999;
+    }
+    #imgInput {
+      margin: 30px 0 10px;
+    }
+    #hint {
+      font-size: 0.9em;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+    #howToBtn {
+      margin-top: 10px;
+      background: #444;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+    #howToOverlay {
+      display: none;
+      background: rgba(0,0,0,0.85);
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 10000;
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    #howToOverlay h2 {
+      margin-bottom: 20px;
+    }
+    #closeHowTo {
+      margin-top: 20px;
+      padding: 8px 16px;
+      background: #666;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<h1>🎮 Welcome to My Game Hub</h1>
+<a class="game-link" href="StartGo.html">🚦 Reaction Light</a>
+<a class="game-link" href="how_many_seconds.html">⏱️ How Many Seconds?</a>
+<a class="game-link" href="réflexes_clavier.html">⌨️ Reflex Typer</a>
+<input accept="image/*" id="imgInput" type="file"/>
+<div id="hint">💡 Press <strong>F9</strong> to toggle stealth mode. Press <strong>Escape</strong> to exit it.</div>
+<button id="howToBtn">ℹ️ How does stealth mode work?</button>
+<div id="fakeOverlay"></div>
+<div id="howToOverlay">
+<h2>Stealth Mode Guide</h2>
+
+
+
+
+<button id="closeHowTo">Close</button>
+<p>1. Upload a screenshot or fake image to disguise your screen.</p><p>2. Set a key (1–9) to toggle the image on/off.</p><p>3. Press Escape to return to the game.</p><p></p></div>
+<script>
+    const overlay = document.getElementById('fakeOverlay');
+    const imgInput = document.getElementById('imgInput');
+    const howToBtn = document.getElementById('howToBtn');
+    const howToOverlay = document.getElementById('howToOverlay');
+    const closeHowTo = document.getElementById('closeHowTo');
+
+    function setImageBackground(imgURL) {
+      overlay.style.backgroundImage = `url(${imgURL})`;
+      localStorage.setItem('stealthImage', imgURL);
+    }
+
+    imgInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImageBackground(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    const saved = localStorage.getItem('stealthImage');
+    if (saved) {
+      overlay.style.backgroundImage = `url(${saved})`;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F9') {
+        overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+      }
+      if (e.key === 'Escape') {
+        overlay.style.display = 'none';
+      }
+    });
+
+    howToBtn.onclick = () => {
+      howToOverlay.style.display = 'block';
+    }
+    closeHowTo.onclick = () => {
+      howToOverlay.style.display = 'none';
+    }
+  </script>
+<div style="margin: 10px 0;">Choose stealth key (1–9): <select id="keyPicker"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option></select></div><script>
+  const keyPicker = document.getElementById('keyPicker');
+  if (keyPicker) {
+    const current = localStorage.getItem('stealthKey') || '7';
+    keyPicker.value = current;
+    keyPicker.addEventListener('change', () => {
+      localStorage.setItem('stealthKey', keyPicker.value);
+    });
+  }
+</script>
+<!-- AdSense Banner -->
+<div class="ad-banner">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>
+   🚦 Reaction Game
+  </title>
+<style>
+   body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #lights {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .light {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #333;
+      box-shadow: 0 0 10px #000;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .on {
+      background: red;
+      box-shadow: 0 0 20px red;
+    }
+
+    .go {
+      background: limegreen;
+      box-shadow: 0 0 25px limegreen;
+    }
+
+    #message {
+      font-size: 22px;
+      margin: 10px;
+      text-align: center;
+    }
+
+    #startBtn {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+
+    #startBtn:hover {
+      background: #43a047;
+    }
+
+    #resetBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      font-size: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #555;
+      color: white;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: background 0.3s, opacity 0.3s;
+    }
+
+    #resetBtn:hover {
+      background: #777;
+      opacity: 1;
+    }
+
+    #highscores {
+      margin-top: 20px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    #highscores h2 {
+      margin-bottom: 10px;
+    }
+
+    #highscores ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #highscores li {
+      padding: 3px 0;
+    }
+  </style>
+<script src="stealth.js">
+</script>
+</head>
+<body>
+<h1>
+   🚦 Reaction Game
+  </h1>
+<div id="lights">
+<div class="light" id="light1">
+</div>
+<div class="light" id="light2">
+</div>
+<div class="light" id="light3">
+</div>
+<div class="light" id="light4">
+</div>
+<div class="light" id="light5">
+</div>
+</div>
+<div id="message">
+   Click start and wait for the green light.
+  </div>
+<button id="startBtn">
+   Start
+  </button>
+<button id="resetBtn">
+   🗑️
+  </button>
+<div id="highscores">
+<h2>
+    🏆 Highscores
+   </h2>
+<ul id="scoreList">
+</ul>
+</div>
+<script>
+   const lights = [
+      document.getElementById('light1'),
+      document.getElementById('light2'),
+      document.getElementById('light3'),
+      document.getElementById('light4'),
+      document.getElementById('light5')
+    ];
+    const message = document.getElementById('message');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const scoreList = document.getElementById('scoreList');
+
+    let greenTime = 0;
+    let canClick = false;
+    let sequenceTimeouts = [];
+    let gameStarted = false;
+
+    function updateHighscores(newScore) {
+      let scores = JSON.parse(localStorage.getItem('reactionHighscores')) || [];
+      if (newScore) scores.push(newScore);
+      scores = scores.filter(s => s !== null && !isNaN(s));
+      scores.sort((a, b) => a - b);
+      scores = scores.slice(0, 5);
+      localStorage.setItem('reactionHighscores', JSON.stringify(scores));
+      renderHighscores(scores);
+    }
+
+    function renderHighscores(scores) {
+      scoreList.innerHTML = '';
+      scores.forEach((s, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${i + 1}. ${s.toFixed(3)} ms`;
+        scoreList.appendChild(li);
+      });
+    }
+
+    function resetHighscores() {
+      localStorage.removeItem('reactionHighscores');
+      renderHighscores([]);
+    }
+
+    function startSequence() {
+      lights.forEach(light => light.className = 'light');
+      message.textContent = '⏳ Get ready...';
+      canClick = false;
+      gameStarted = true;
+
+      let delay = 1000;
+      lights.forEach((light, index) => {
+        const timeout = setTimeout(() => {
+          light.classList.add('on');
+        }, delay * (index + 1));
+        sequenceTimeouts.push(timeout);
+      });
+
+      const goTime = delay * lights.length + Math.random() * 2000 + 1000;
+      const finalTimeout = setTimeout(() => {
+        lights.forEach(light => light.className = 'light');
+        lights[2].classList.add('go');
+        greenTime = performance.now();
+        message.textContent = '💚 GO!';
+        canClick = true;
+      }, goTime);
+      sequenceTimeouts.push(finalTimeout);
+    }
+
+    function resetLights() {
+      lights.forEach(light => light.className = 'light');
+    }
+
+    function endGame() {
+      if (!gameStarted) return;
+      if (!canClick) {
+        sequenceTimeouts.forEach(clearTimeout);
+        resetLights();
+        message.textContent = '❌ False start! Too early!';
+        gameStarted = false;
+      } else {
+        const now = performance.now();
+        const reaction = now - greenTime;
+        message.textContent = `⚡ Your reaction time: ${reaction.toFixed(3)} ms`;
+        resetLights();
+        updateHighscores(reaction);
+        gameStarted = false;
+      }
+      canClick = false;
+    }
+
+    function triggerStart() {
+      if (!gameStarted) {
+        sequenceTimeouts.forEach(clearTimeout);
+        startSequence();
+      }
+    }
+
+    startBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      triggerStart();
+    });
+
+    resetBtn.addEventListener('click', resetHighscores);
+    document.body.addEventListener('click', (e) => {
+      if (e.target === startBtn || e.target === resetBtn) return;
+      endGame();
+    });
+
+    document.body.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (canClick && gameStarted) {
+          endGame();
+        } else if (!gameStarted) {
+          triggerStart();
+        } else if (!canClick && gameStarted) {
+          endGame();
+        }
+      }
+    });
+
+    updateHighscores();
+  </script>
+</body>
+</html>

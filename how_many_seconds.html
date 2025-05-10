@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>
+   ⏱️ How Many Seconds?
+  </title>
+<style>
+   body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background: linear-gradient(to right, #f2f2f2, #d6e4f0);
+      padding-top: 50px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    label, select {
+      font-size: 1.2em;
+      margin: 10px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 20px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }
+    #message {
+      font-size: 1.4em;
+      margin: 20px;
+    }
+    #result {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin: 20px;
+      color: #333;
+    }
+    #container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+  </style>
+<script src="stealth.js">
+</script>
+</head>
+<body>
+<div id="container">
+<h1>
+    ⏱️ Click after the selected time
+   </h1>
+<div id="message">
+    Choose a delay, then press "Start".
+   </div>
+<label for="delaySelect">
+    Time to wait:
+   </label>
+<select id="delaySelect">
+<option value="3000">
+     3 seconds
+    </option>
+<option selected="" value="5000">
+     5 seconds
+    </option>
+<option value="7000">
+     7 seconds
+    </option>
+<option value="10000">
+     10 seconds
+    </option>
+<option value="15000">
+     15 seconds
+    </option>
+<option value="20000">
+     20 seconds
+    </option>
+<option value="25000">
+     25 seconds
+    </option>
+<option value="30000">
+     30 seconds
+    </option>
+</select>
+<br/>
+<button id="startBtn">
+    Start
+   </button>
+<button id="clickBtn" style="display: none;">
+    Click now!
+   </button>
+<div id="result">
+</div>
+</div>
+<script>
+   const startBtn = document.getElementById('startBtn');
+    const clickBtn = document.getElementById('clickBtn');
+    const delaySelect = document.getElementById('delaySelect');
+    const message = document.getElementById('message');
+    const result = document.getElementById('result');
+
+    let startTime, expectedTime;
+
+    startBtn.addEventListener('click', () => {
+      const delay = parseInt(delaySelect.value);
+      startBtn.style.display = 'none';
+      delaySelect.disabled = true;
+      clickBtn.style.display = 'inline-block';
+      message.textContent = `Click after ${delay / 1000} seconds...`;
+      result.textContent = '';
+      startTime = performance.now();
+      expectedTime = startTime + delay;
+    });
+
+    clickBtn.addEventListener('click', () => {
+      const now = performance.now();
+      const diff = now - expectedTime;
+      const delta = Math.abs(diff / 1000).toFixed(3);
+      const signed = (diff >= 0 ? '+' : '-') + delta;
+      result.textContent = `⏱️ Offset: ${signed} seconds`;
+      message.textContent = 'Choose a new delay to try again.';
+      startBtn.style.display = 'inline-block';
+      delaySelect.disabled = false;
+      clickBtn.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
