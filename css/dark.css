@@ -1,0 +1,33 @@
+/* Par défaut : clair */
+body {
+  background-color: white;
+  color: black;
+  transition: all 0.3s ease;
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+/* Pour le bouton (optionnel, à styliser à ta sauce) */
+#theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  cursor: pointer;
+}
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 20px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }

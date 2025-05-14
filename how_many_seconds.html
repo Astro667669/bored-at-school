@@ -1,61 +1,21 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>
-   ⏱️ How Many Seconds?
-  </title>
-<style>
-   body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      background: linear-gradient(to right, #f2f2f2, #d6e4f0);
-      padding-top: 50px;
-    }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-    label, select {
-      font-size: 1.2em;
-      margin: 10px;
-    }
-    button {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      margin: 20px;
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #3367d6;
-    }
-    #message {
-      font-size: 1.4em;
-      margin: 20px;
-    }
-    #result {
-      font-size: 1.5em;
-      font-weight: bold;
-      margin: 20px;
-      color: #333;
-    }
-    #container {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      display: inline-block;
-    }
-  </style>
-<script src="stealth.js">
-</script>
+  <meta charset="utf-8"/>
+  <title>
+    ⏱️ How Many Seconds?
+    </title>
+
+    <link rel="stylesheet" href="./css/how_many_seconds.css">
+    <link rel="stylesheet" href="./css/dark.css">
+
+  </script>
 </head>
 <body>
+  <body>
+  <div id="theme-toggle-container">
+  <button id="theme-toggle">🌙 Mode sombre</button>
+</div>
 <div id="container">
 <h1>
     ⏱️ Click after the selected time
@@ -134,5 +94,7 @@
       clickBtn.style.display = 'none';
     });
   </script>
+  <script src="stealth.js"></script>
+  <script src="./js/dark.js"></script>
 </body>
 </html>
