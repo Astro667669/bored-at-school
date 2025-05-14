@@ -1,67 +1,97 @@
    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      margin: 0;
     }
-    h1 {
-      margin-bottom: 10px;
-      font-size: 3rem;
+
+    #lights {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
     }
-    #letter {
-      font-size: 120px;
-      font-weight: bold;
-      margin: 30px;
-      color: #333;
-      transition: transform 0.3s ease;
+
+    .light {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #333;
+      box-shadow: 0 0 10px #000;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
     }
-    #info, #score, #highscore {
-      font-size: 24px;
-      margin: 10px;
+
+    .on {
+      background: red;
+      box-shadow: 0 0 20px red;
     }
-    #startBtn, #replayBtn {
-      padding: 15px 30px;
-      font-size: 20px;
-      border: none;
-      background: #4CAF50;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s ease;
-      margin: 10px;
+
+    .go {
+      background: limegreen;
+      box-shadow: 0 0 25px limegreen;
     }
-    #startBtn:hover, #replayBtn:hover {
-      background: #45a049;
-      transform: scale(1.05);
-    }
-    #summary {
-      display: none;
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      margin-top: 30px;
-      max-width: 400px;
-      text-align: center;
-      animation: fadeIn 0.5s ease;
-    }
-    #summary h2 {
-      margin-bottom: 20px;
-    }
-    #avgTimeDisplay {
-      margin-top: 10px;
-      font-size: 28px;
-      font-weight: bold;
-      color: #222;
-    }
-    #totalHits {
+
+    #message {
       font-size: 22px;
-      margin-top: 5px;
+      margin: 10px;
+      text-align: center;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
+
+    #startBtn {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+      margin: 5px;
+      transition: background 0.3s;
+    }
+
+    #startBtn:hover {
+      background: #43a047;
+    }
+
+    #resetBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      font-size: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #555;
+      color: white;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: background 0.3s, opacity 0.3s;
+    }
+
+    #resetBtn:hover {
+      background: #777;
+      opacity: 1;
+    }
+
+    #highscores {
+      margin-top: 20px;
+      max-width: 300px;
+      text-align: center;
+    }
+
+    #highscores h2 {
+      margin-bottom: 10px;
+    }
+
+    #highscores ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #highscores li {
+      padding: 3px 0;
     }
