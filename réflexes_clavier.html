@@ -112,5 +112,11 @@
 </div>
 <script src="./js/main.js">
 </script>
-</body>
+<script>
+document.addEventListener('keydown', function(e) {
+  if ((e.key === ' ' || e.key === 'Enter') && document.getElementById('startBtn').style.display !== 'none') {
+    document.getElementById('startBtn').click();
+  }
+});
+</script></body>
 </html>
