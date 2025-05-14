@@ -1,5 +1,13 @@
- const toggleBtn = document.getElementById('theme-toggle');
-  const root = document.body;
+const toggleBtn = document.getElementById('theme-toggle');
+const root = document.body;
+
+const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+if (prefersDarkScheme.matches) {
+  document.body.classList.add("dark-mode");
+} else {
+  document.body.classList.remove("dark-mode");
+}
 
   // Appliquer le mode au chargement
   function applySavedTheme() {
