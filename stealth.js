@@ -17,19 +17,12 @@
     overlay.style.backgroundImage = `url(${imgURL})`;
   }
 
-  const storedKey = localStorage.getItem('stealthKey') || '7';
-
   document.addEventListener('keydown', (e) => {
-    if (e.key === storedKey) {
+    if (e.key === 'F9') {
       overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
     }
     if (e.key === 'Escape') {
       overlay.style.display = 'none';
     }
   });
-
-  // expose method to update key
-  window.setStealthKey = (key) => {
-    localStorage.setItem('stealthKey', key);
-  };
 })();

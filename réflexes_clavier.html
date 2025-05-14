@@ -3,7 +3,6 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<script async="" crossorigin="anonymous" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"></script>
 <title>
    ⌨️ Reflex Typer
   </title>
@@ -112,37 +111,6 @@
    </button>
 </div>
 <script src="./js/main.js">
-</script>
-
-<script>
-(() => {
-  const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.zIndex = '99999';
-  overlay.style.backgroundSize = 'cover';
-  overlay.style.backgroundPosition = 'center';
-  overlay.style.display = 'none';
-  overlay.id = 'stealthOverlay';
-  document.body.appendChild(overlay);
-
-  const imgURL = localStorage.getItem('stealthImage');
-  if (imgURL) {
-    overlay.style.backgroundImage = `url(${imgURL})`;
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === '0') {
-      overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
-    }
-    if (e.key === 'Escape') {
-      overlay.style.display = 'none';
-    }
-  });
-})();
 </script>
 </body>
 </html>

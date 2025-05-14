@@ -4,7 +4,6 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<script async="" crossorigin="anonymous" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"></script>
 <title>🎮 Game Launcher</title>
 <style>
     body {
@@ -97,6 +96,10 @@
 <div id="fakeOverlay"></div>
 <div id="howToOverlay">
 <h2>Stealth Mode Guide</h2>
+
+
+
+
 <button id="closeHowTo">Close</button>
 <p>1. Upload a screenshot or fake image to disguise your screen.</p><p>2. Set a key (1–9) to toggle the image on/off.</p><p>3. Press Escape to return to the game.</p><p></p></div>
 <script>
@@ -154,40 +157,15 @@
 </script>
 <!-- AdSense Banner -->
 <div class="ad-banner">
-<script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<ins class="adsbygoogle" data-ad-client="ca-pub-xxxxxxxxxxxxxxxx" data-ad-format="auto" data-ad-slot="1234567890" data-full-width-responsive="true" style="display:block"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
 
-<script>
-(() => {
-  const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.zIndex = '99999';
-  overlay.style.backgroundSize = 'cover';
-  overlay.style.backgroundPosition = 'center';
-  overlay.style.display = 'none';
-  overlay.id = 'stealthOverlay';
-  document.body.appendChild(overlay);
-
-  const imgURL = localStorage.getItem('stealthImage');
-  if (imgURL) {
-    overlay.style.backgroundImage = `url(${imgURL})`;
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === '0') {
-      overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
-    }
-    if (e.key === 'Escape') {
-      overlay.style.display = 'none';
-    }
-  });
-})();
-</script>
 </body>
 </html>
