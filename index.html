@@ -39,8 +39,10 @@
 
     function setImageBackground(imgURL) {
       overlay.style.backgroundImage = `url(${imgURL})`;
+      overlay.style.display = 'none'; // Par défaut caché
       localStorage.setItem('stealthImage', imgURL);
     }
+
 
     imgInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
