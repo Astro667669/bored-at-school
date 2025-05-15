@@ -60,6 +60,10 @@
     const saved = localStorage.getItem('stealthImage');
     if (saved) {
       overlay.style.backgroundImage = `url(${saved})`;
+
+      // Affiche la preview au chargement
+      const preview = document.getElementById('preview');
+      preview.innerHTML = `<img src="${saved}" alt="Preview" />`;
     }
 
     document.addEventListener('keydown', (e) => {
