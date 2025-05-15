@@ -18,7 +18,10 @@
 <a class="game-link" href="StartGo.html">🚦 Reaction Light</a>
 <a class="game-link" href="how_many_seconds.html">⏱️ How Many Seconds?</a>
 <a class="game-link" href="réflexes_clavier.html">⌨️ Reflex Typer</a>
+<label for="imgInput" class="custom-file-upload">📁 Choose an image</label>
 <input accept="image/*" id="imgInput" type="file"/>
+<div id="preview"></div>
+
 <div id="hint">💡 Press <strong>F9</strong> to toggle stealth mode. Press <strong>Escape</strong> to exit it.</div>
 <button id="howToBtn">ℹ️ How does stealth mode work?</button>
 <div id="fakeOverlay"></div>
@@ -74,6 +77,22 @@
     closeHowTo.onclick = () => {
       howToOverlay.style.display = 'none';
     }
+    imgInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const imgURL = event.target.result;
+    setImageBackground(imgURL);
+
+    // Aperçu
+    const preview = document.getElementById('preview');
+    preview.innerHTML = `<img src="${imgURL}" alt="Preview" />`;
+  };
+  reader.readAsDataURL(file);
+});
+
   </script>
 <div style="margin: 10px 0;">Choose stealth key (1–9): <select id="keyPicker"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option></select></div><script>
   const keyPicker = document.getElementById('keyPicker');

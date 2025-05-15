@@ -75,3 +75,32 @@ body {
       border-radius: 8px;
       cursor: pointer;
     }
+    #imgInput {
+      display: none;
+    }
+
+    .custom-file-upload {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #333;
+      color: white;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin: 20px auto 0 auto;
+    }
+
+    .custom-file-upload:hover {
+      background-color: #555;
+    }
+    #preview {
+      margin-top: 15px;
+      text-align: center;
+    }
+    #preview img {
+      width: 192px;
+      height: 108px;
+      border: 2px solid #444;
+      border-radius: 10px;
+    }
