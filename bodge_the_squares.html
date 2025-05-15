@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dodge the Squares</title>
+  <link rel="stylesheet" href="./css/bodgethesquares.css">
+  <link rel="stylesheet" href="./css/dark.css">
+</head>
+<body>
+    <div id="theme-toggle-container">
+    <button id="theme-toggle">🌙 Mode sombre</button>
+    </div>
+    <div id="countdown"></div>
+    <canvas id="game" width="300" height="500"></canvas>
+    <button id="start">Start Game</button>
+
+    <div id="score">Score: 0</div>
+    <div id="bestScore">Best: 0</div>
+    <button id="restart">Restart</button>
+
+  <script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const startBtn = document.getElementById("start");
+const restartBtn = document.getElementById("restart");
+const scoreEl = document.getElementById("score");
+const bestScoreEl = document.getElementById("bestScore");
+const countdownEl = document.getElementById("countdown");
+
+let player, enemies, keys, score, speed, gameLoop, isGameOver, gravityDown, lastGravitySwitch;
+let bestScore = localStorage.getItem("dodge_best") || 0;
+bestScoreEl.textContent = `Best: ${bestScore}`;
+
+function resetGame(startNow = false) {
+  player = { x: 140, y: 460, w: 20, h: 20, speed: 5 };
+  enemies = [];
+  keys = {};
+  score = 0;
+  speed = 2;
+  isGameOver = false;
+  gravityDown = true;
+  lastGravitySwitch = 0;
+  scoreEl.textContent = "Score: 0";
+  restartBtn.style.display = "none";
+  cancelAnimationFrame(gameLoop);
+
+  if (startNow) {
+    startCountdown();
+  } else {
+    startBtn.style.display = "inline-block";
+  }
+}
+
+function startCountdown() {
+  startBtn.style.display = "none";
+  let count = 3;
+  countdownEl.textContent = count;
+
+  const interval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      countdownEl.textContent = count;
+    } else if (count === 0) {
+      countdownEl.textContent = "GO!";
+    } else {
+      clearInterval(interval);
+      countdownEl.textContent = "";
+      requestAnimationFrame(update);
+    }
+  }, 1000);
+}
+
+function spawnEnemy() {
+  enemies.push({
+    x: Math.random() * (canvas.width - 20),
+    y: gravityDown ? -20 : canvas.height + 20,
+    w: 20,
+    h: 20
+  });
+}
+
+function update() {
+  if (isGameOver) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw player
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+
+  // Move player
+  if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+  if (keys["ArrowRight"] && player.x + player.w < canvas.width) player.x += player.speed;
+
+  // Update and draw enemies
+  ctx.fillStyle = "#e74c3c";
+  enemies.forEach((enemy, i) => {
+    enemy.y += gravityDown ? speed : -speed;
+    ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+
+    // Collision
+    if (
+      player.x < enemy.x + enemy.w &&
+      player.x + player.w > enemy.x &&
+      player.y < enemy.y + enemy.h &&
+      player.y + player.h > enemy.y
+    ) {
+      isGameOver = true;
+      ctx.fillStyle = "white";
+      ctx.font = "24px sans-serif";
+      ctx.fillText("💀 Game Over", 70, 250);
+
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("dodge_best", bestScore);
+        bestScoreEl.textContent = `Best: ${bestScore}`;
+      }
+
+      restartBtn.style.display = "inline-block";
+      cancelAnimationFrame(gameLoop);
+    }
+
+    // Remove enemy if off screen
+    if ((gravityDown && enemy.y > canvas.height) || (!gravityDown && enemy.y + enemy.h < 0)) {
+      enemies.splice(i, 1);
+      score++;
+      scoreEl.textContent = `Score: ${score}`;
+
+      // Augmenter la vitesse tous les 10 points
+      if (score % 10 === 0) speed += 0.5;
+
+      // Inverser la gravité tous les 100 points
+      if (score % 100 === 0 && score !== 0 && score !== lastGravitySwitch) {
+        gravityDown = !gravityDown;
+        lastGravitySwitch = score;
+
+        // Déplacer le joueur à l'opposé selon la nouvelle gravité
+        player.y = gravityDown
+          ? canvas.height - player.h - 20 // bas
+          : 20; // haut
+      }
+
+    }
+  });
+
+  // Spawn enemy aléatoirement
+  if (Math.random() < 0.03) spawnEnemy();
+
+  gameLoop = requestAnimationFrame(update);
+}
+
+document.addEventListener("keydown", (e) => {
+  keys[e.key] = true;
+
+  if (isGameOver && (e.key === " " || e.key === "Enter")) {
+    resetGame(true);
+  }
+});
+
+document.addEventListener("keyup", (e) => (keys[e.key] = false));
+restartBtn.addEventListener("click", () => resetGame(true));
+startBtn.addEventListener("click", () => resetGame(true));
+
+// Lancer le jeu en attente
+resetGame();
+
+  </script>
+  <script src="./js/dark.js"></script>
+</body>
+</html>
