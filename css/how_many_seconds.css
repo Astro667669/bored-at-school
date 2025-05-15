@@ -35,7 +35,7 @@
       color: #333;
     }
     #container {
-      background: white;
+      background: rgba(255, 255, 255, 0.226);
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 15px rgba(0,0,0,0.1);
