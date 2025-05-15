@@ -18,6 +18,9 @@
       color: #333;
       transition: transform 0.3s ease;
     }
+    #letter.dark-mode{
+      color: rgb(255, 255, 255);
+    }
     #info, #score, #highscore {
       font-size: 24px;
       margin: 10px;
