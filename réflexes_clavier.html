@@ -43,16 +43,146 @@
     Replay
    </button>
 </div>
-<script src="./js/main.js">
-</script>
-<script>
-document.addEventListener('keydown', function(e) {
-  if ((e.key === ' ' || e.key === 'Enter') && document.getElementById('startBtn').style.display !== 'none') {
-    document.getElementById('startBtn').click();
+  <script>
+  const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const letterDiv = document.getElementById('letter');
+  const startBtn = document.getElementById('startBtn');
+  const scoreDiv = document.getElementById('score');
+  const highscoreDiv = document.getElementById('highscore');
+  const summaryDiv = document.getElementById('summary');
+  const avgTimeDisplay = document.getElementById('avgTimeDisplay');
+  const totalHitsDisplay = document.getElementById('totalHits');
+  const replayBtn = document.getElementById('replayBtn');
+
+  let currentLetter = '';
+  let score = 0;
+  let highScore = parseInt(localStorage.getItem('reflexHighscore')) || 0;
+  highscoreDiv.textContent = `High Score: ${highScore}`;
+
+  let startTime;
+  let timer;
+  let reactionTimes = [];
+  let isGameActive = false;
+
+  highscoreDiv.textContent = `High Score: ${highScore}`;
+
+  function getRandomLetter() {
+    return letters[Math.floor(Math.random() * letters.length)];
   }
-});
-</script>
-<script src="./js/stealth.js"></script>
+
+  function showNewLetter() {
+    currentLetter = getRandomLetter();
+    letterDiv.textContent = currentLetter.toUpperCase();
+
+    // ⚡ Animation
+    letterDiv.classList.remove('flash');
+    void letterDiv.offsetWidth; 
+    letterDiv.classList.add('flash');
+
+    startTime = Date.now();
+    isGameActive = true;
+
+    timer = setTimeout(() => {
+      letterDiv.textContent = 'Too slow!';
+      isGameActive = false;
+      finishGame();
+    }, 2000);
+  }
+
+
+  function finishGame() {
+    clearTimeout(timer);
+    isGameActive = false;
+
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('reflexHighscore', highScore);
+      highscoreDiv.textContent = `High Score: ${highScore}`;
+    }
+
+    summaryDiv.style.display = 'block';
+    startBtn.style.display = 'inline-block';
+    avgTimeDisplay.textContent = `Average Reaction Time: ${
+      reactionTimes.length
+        ? (reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length).toFixed(2) + ' ms'
+        : 'N/A'
+    }`;
+    totalHitsDisplay.textContent = `Total Hits: ${reactionTimes.length}`;
+  }
+
+
+function resetGame() {
+  score = 0;
+  reactionTimes = [];
+  summaryDiv.style.display = 'none';
+  scoreDiv.textContent = 'Score: 0';
+
+  let count = 3;
+  letterDiv.textContent = count;
+  letterDiv.classList.remove('flash');
+  void letterDiv.offsetWidth;
+  letterDiv.classList.add('flash');
+
+  const countdownInterval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      letterDiv.textContent = count;
+      letterDiv.classList.remove('flash');
+      void letterDiv.offsetWidth;
+      letterDiv.classList.add('flash');
+    } else {
+      clearInterval(countdownInterval);
+      showNewLetter();
+    }
+  }, 1000);
+}
+
+
+  document.addEventListener('keydown', (e) => {
+    if (!isGameActive || summaryDiv.style.display === 'block') return;
+
+    const key = e.key.toLowerCase();
+    if (key === currentLetter) {
+      const reactionTime = Date.now() - startTime;
+      if (reactionTime <= 2000) {
+        score++;
+        reactionTimes.push(reactionTime);
+        scoreDiv.textContent = `Score: ${score}`;
+        clearTimeout(timer);
+        showNewLetter();
+      }
+    } else if (letters.includes(key)) {
+      isGameActive = false;
+      clearTimeout(timer);
+      letterDiv.textContent = 'Wrong key!';
+      setTimeout(finishGame, 1000);
+    }
+  });
+
+  startBtn.addEventListener('click', () => {
+    startBtn.style.display = 'none';
+    resetGame();
+  });
+
+  replayBtn.addEventListener('click', () => {
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('reflexHighscore', highScore);
+      highscoreDiv.textContent = `High Score: ${highScore}`;
+    }
+    resetGame();
+  });
+
+
+  </script>
+  <script>
+  document.addEventListener('keydown', function(e) {
+    if ((e.key === ' ' || e.key === 'Enter') && document.getElementById('startBtn').style.display !== 'none') {
+      document.getElementById('startBtn').click();
+    }
+  });
+  </script>
+  <script src="./js/stealth.js"></script>
 <script src="./js/dark.js"></script>
 </body>
 </html>
