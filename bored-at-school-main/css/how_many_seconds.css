@@ -1,0 +1,42 @@
+   body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    label, select {
+      font-size: 1.2em;
+      margin: 10px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 20px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }
+    #message {
+      font-size: 1.4em;
+      margin: 20px;
+    }
+    #result {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin: 20px;
+    }
+    #container {
+      background: rgba(255, 255, 255, 0.404);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      display: inline-block;
+    }

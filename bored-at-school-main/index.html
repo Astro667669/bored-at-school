@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>🎮 Game Launcher</title>
+
+  <link rel="stylesheet" href="./css/index.css">
+  <link rel="stylesheet" href="./css/dark.css">
+</head>
+<body>
+  <div id="theme-toggle-container">
+  <button id="theme-toggle">🌙 Mode sombre</button>
+</div>
+
+<h1>🎮 Welcome to My Game Hub</h1>
+<a class="game-link" href="StartGo.html">🚦 Reaction Light</a>
+<a class="game-link" href="how_many_seconds.html">⏱️ How Many Seconds?</a>
+<a class="game-link" href="réflexes_clavier.html">⌨️ Reflex Typer</a>
+<label for="imgInput" class="custom-file-upload">📁 Choose an image</label>
+<input accept="image/*" id="imgInput" type="file"/>
+<div id="preview"></div>
+
+<div id="hint">💡 Press <strong>F9</strong> to toggle stealth mode. Press <strong>Escape</strong> to exit it.</div>
+<button id="howToBtn">ℹ️ How does stealth mode work?</button>
+<div id="fakeOverlay"></div>
+<div id="howToOverlay">
+<h2>Stealth Mode Guide</h2>
+
+
+
+
+<button id="closeHowTo">Close</button>
+<p>1. Upload a screenshot or fake image to disguise your screen.</p><p>2. Set a key (1–9) to toggle the image on/off.</p><p>3. Press Escape to return to the game.</p><p></p></div>
+<script>
+    const overlay = document.getElementById('fakeOverlay');
+    const imgInput = document.getElementById('imgInput');
+    const howToBtn = document.getElementById('howToBtn');
+    const howToOverlay = document.getElementById('howToOverlay');
+    const closeHowTo = document.getElementById('closeHowTo');
+
+    function setImageBackground(imgURL) {
+      overlay.style.backgroundImage = `url(${imgURL})`;
+      overlay.style.display = 'none'; // Par défaut caché
+      localStorage.setItem('stealthImage', imgURL);
+    }
+
+
+    imgInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setImageBackground(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    const saved = localStorage.getItem('stealthImage');
+    if (saved) {
+      overlay.style.backgroundImage = `url(${saved})`;
+
+      // Affiche la preview au chargement
+      const preview = document.getElementById('preview');
+      preview.innerHTML = `<img src="${saved}" alt="Preview" />`;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F9') {
+        overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+      }
+      if (e.key === 'Escape') {
+        overlay.style.display = 'none';
+      }
+    });
+
+    howToBtn.onclick = () => {
+      howToOverlay.style.display = 'block';
+    }
+    closeHowTo.onclick = () => {
+      howToOverlay.style.display = 'none';
+    }
+    imgInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const imgURL = event.target.result;
+    setImageBackground(imgURL);
+
+    // Aperçu
+    const preview = document.getElementById('preview');
+    preview.innerHTML = `<img src="${imgURL}" alt="Preview" />`;
+  };
+  reader.readAsDataURL(file);
+});
+
+  </script>
+<div style="margin: 10px 0;">Choose stealth key (1–9): <select id="keyPicker"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option></select></div><script>
+  const keyPicker = document.getElementById('keyPicker');
+  if (keyPicker) {
+    const current = localStorage.getItem('stealthKey') || '7';
+    keyPicker.value = current;
+    keyPicker.addEventListener('change', () => {
+      localStorage.setItem('stealthKey', keyPicker.value);
+    });
+  }
+</script>
+<!-- AdSense Banner -->
+<div class="ad-banner">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-xxxxxxxxxxxxxxxx"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  <script src="./js/dark.js"></script>
+</div>
+
+</body>
+</html>

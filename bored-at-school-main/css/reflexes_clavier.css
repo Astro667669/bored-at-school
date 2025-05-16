@@ -1,0 +1,83 @@
+   body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-size: 3rem;
+    }
+    #letter {
+      font-size: 120px;
+      font-weight: bold;
+      margin: 30px;
+      color: #333;
+      transition: transform 0.3s ease;
+    }
+    #letter.dark-mode{
+      color: rgb(255, 255, 255);
+    }
+    #info, #score, #highscore {
+      font-size: 24px;
+      margin: 10px;
+    }
+    #startBtn, #replayBtn {
+      padding: 15px 30px;
+      font-size: 20px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s ease;
+      margin: 10px;
+    }
+    #startBtn:hover, #replayBtn:hover {
+      background: #45a049;
+      transform: scale(1.05);
+    }
+    #summary {
+      display: none;
+      background: rgba(255, 255, 255, 0.404);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+    #summary h2 {
+      margin-bottom: 20px;
+    }
+    #avgTimeDisplay {
+      margin-top: 10px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    #totalHits {
+      font-size: 22px;
+      margin-top: 5px;
+    }
+ #letter.flash {
+  animation: pop 0.2s ease;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+
+  }
+  50% {
+    transform: scale(1.5);
+
+  }
+  100% {
+    transform: scale(1);
+
+  }
+}
