@@ -77,6 +77,19 @@
       border-radius: 8px;
       border: 1px solid #ff4757;
     }
+
+    #countdown {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      font-weight: bold;
+      color: #ffffff;
+      z-index: 100;
+      display: none;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -88,6 +101,7 @@
 
   <div id="game-area">
     <button id="click-btn" style="display: none;">Clique-moi !</button>
+    <div id="countdown">3</div>
   </div>
 
   <button id="start-btn">Lancer la partie</button>
@@ -102,11 +116,12 @@
     const bestScoreEl = document.getElementById("best-score");
     const gameArea = document.getElementById("game-area");
     const errorMsg = document.getElementById("error-message");
+    const countdownEl = document.getElementById("countdown");
 
     let score = 0;
     let timeLeft = 10;
     let timer;
-
+    let countdownTimer;
     let bestScore = localStorage.getItem("clickWarBestScore") || 0;
     bestScoreEl.textContent = bestScore;
 
@@ -115,6 +130,7 @@
         clickBtn.style.display = "none";
         startBtn.style.display = "none";
         errorMsg.style.display = "block";
+        countdownEl.style.display = "none";
         return false;
       } else {
         errorMsg.style.display = "none";
@@ -161,6 +177,26 @@
       }
     }
 
+    function startCountdown(callback) {
+      let count = 3;
+      countdownEl.textContent = count;
+      countdownEl.style.display = "block";
+
+      countdownTimer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownEl.textContent = count;
+        } else {
+          countdownEl.textContent = "GO!";
+          clearInterval(countdownTimer);
+          setTimeout(() => {
+            countdownEl.style.display = "none";
+            callback();
+          }, 500);
+        }
+      }, 1000);
+    }
+
     clickBtn.addEventListener("click", () => {
       score++;
       scoreEl.textContent = score;
@@ -170,14 +206,18 @@
     startBtn.addEventListener("click", () => {
       if (!checkWindowSize()) return;
 
+      startBtn.style.display = "none";
+      clickBtn.style.display = "none";
       score = 0;
       timeLeft = 10;
       scoreEl.textContent = score;
       timeEl.textContent = timeLeft;
-      startBtn.style.display = "none";
-      clickBtn.style.display = "block";
-      moveButton();
-      timer = setInterval(updateTime, 1000);
+
+      startCountdown(() => {
+        clickBtn.style.display = "block";
+        moveButton();
+        timer = setInterval(updateTime, 1000);
+      });
     });
   </script>
 
