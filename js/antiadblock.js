@@ -1,29 +1,31 @@
-function checkIfAdIsBlocked() {
-    const adContainer = document.getElementById('atcontainer-C86E387157f60d5125b9bd69ed6b7980');
 
-    // Vérifie si l'élément existe
-    if (!adContainer) {
-        adBlockedAction("🧱 Le conteneur publicitaire est supprimé.");
-        return;
-    }
 
-    const style = window.getComputedStyle(adContainer);
-    const isHidden = style.display === 'none' || style.visibility === 'hidden' || adContainer.offsetHeight === 0;
 
-    if (isHidden) {
-        adBlockedAction("🕵️‍♂️ Le conteneur publicitaire est masqué.");
+
+function detectAdBlock() {
+    console.log("🔍 Vérification AdBlock...");
+
+    // Méthode 1 : Vérifie si le leurre est masqué ou supprimé
+    const ad = document.querySelector('.adsbox');
+    const baitBlocked = !ad || ad.offsetHeight === 0;
+
+    // Méthode 2 : Tente de charger un faux script pub
+    const fakeScript = document.createElement('script');
+    fakeScript.src = "/ads.js?v=" + Date.now();
+    fakeScript.onerror = handleAdBlock;
+
+    if (baitBlocked) {
+        handleAdBlock();
+    } else {
+        document.body.appendChild(fakeScript);
     }
 }
 
-function adBlockedAction(message) {
-    console.warn(message);
-    alert("🚫 Publicité bloquée détectée ! Merci de désactiver AdBlock pour soutenir le site.");
-    // Optionnel : bloquer ou rediriger
-    // window.location.href = "/adblock-detected";
+function handleAdBlock() {
+    if (!sessionStorage.getItem("adblock_redirected")) {
+        alert("🚫 AdBlock détecté ! Merci de le désactiver pour continuer.");
+        sessionStorage.setItem("adblock_redirected", "true");
+    }
 }
 
-// Vérifie dès que la page est chargée, et régulièrement
-window.addEventListener('load', () => {
-    checkIfAdIsBlocked();
-    setInterval(checkIfAdIsBlocked, 100); // toutes les 10 secondes
-});
+window.addEventListener('load', () => setTimeout(detectAdBlock, 500));
