@@ -7,13 +7,16 @@
   <link rel="stylesheet" href="./css/bodgethesquares.css">
   <link rel="stylesheet" href="./css/dark.css">
   <style>
+    body{
+      margin: 0;
+      padding: 0;
+    }
     canvas {
       background-image: url("./mont-everest-fond-blanc_908985-40370.jpg");
       background-repeat: no-repeat;
       background-size: cover;
       background-position: -150px;
       display: block;
-      margin: 20px auto;
       border: 2px solid white;
     }
     #click-btn, #restart {
@@ -22,11 +25,20 @@
       padding: 10px 20px;
       font-size: 1.2rem;
     }
-    #progression, #best {
+    #progression, #best, #timer {
       text-align: center;
       font-size: 1.2rem;
       color: white;
     }
+    #shop{
+      display: flex;
+      gap: 50px;
+      justify-content: center;
+    }
+    #shop div button{
+      width: 400px;
+    }
+
   </style>
 </head>
 <body>
@@ -47,8 +59,10 @@
 <div id="theme-toggle-container">
   <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
 </div>
-<div id="shop" style="color:white; max-width: 300px; margin: auto;"></div>
+<h2>Boutique</h2>
+<div id="shop" style="color:white; max-width: 300px;"></div>
 
+<div id="timer">⏱️ Temps : 0s</div>
 <canvas id="game" width="1000" height="800"></canvas>
 <button id="click-btn">🖱️ Clique pour grimper !</button>
 <div id="progression"></div>
@@ -65,8 +79,42 @@ const restartBtn = document.getElementById("restart");
 
 const TOTAL_CLICKS = 8848;
 
+// Temps
+let startTime = parseInt(localStorage.getItem("climb_start_time")) || Date.now();
 
-// shop 
+
+
+let elapsedTime = parseInt(localStorage.getItem("climb_elapsed_time")) || 0;
+let timerInterval = null;
+let bestTime = parseInt(localStorage.getItem("climb_best_time")) || null;
+
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}H ${minutes}M ${seconds}S`;
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  startTime = Date.now() - elapsedTime; // ✅ corrige le point de départ pour pause/reprise
+  timerInterval = setInterval(() => {
+    elapsedTime = Date.now() - startTime;
+    document.getElementById("timer").textContent = `⏱️ Temps : ${formatTime(elapsedTime)}`;
+    localStorage.setItem("climb_elapsed_time", elapsedTime);
+    localStorage.setItem("climb_start_time", startTime); // garde le bon point de départ
+  }, 1000);
+}
+
+
+if (localStorage.getItem("climb_elapsed_time")) {
+  elapsedTime = parseInt(localStorage.getItem("climb_elapsed_time"));
+  startTime = Date.now() - elapsedTime; // 🧠 redéfinit startTime correctement
+}
+
+
+// Shop
 const shopItems = [
   {
     id: "doubleClick",
@@ -92,17 +140,13 @@ const shopItems = [
   }
 ];
 
-// bonus actif
 let doubleClickActive = false;
 let autoClickInterval = null;
 let purchasedItems = JSON.parse(localStorage.getItem("climb_purchases")) || [];
 
-
-
-// affiche le shop
 function renderShop() {
   const shopContainer = document.getElementById("shop");
-  shopContainer.innerHTML = "<h2>🏪 Boutique</h2>";
+  shopContainer.innerHTML = ""; // 🧹 Vide la boutique avant de la remplir
 
   shopItems.forEach(item => {
     const bought = purchasedItems.includes(item.id);
@@ -119,7 +163,7 @@ function renderShop() {
         localStorage.setItem("climb_purchases", JSON.stringify(purchasedItems));
         localStorage.setItem("climb_clicks", currentClicks);
         updateProgress();
-        renderShop();
+        renderShop(); // re-render proprement
       }
     });
 
@@ -128,14 +172,11 @@ function renderShop() {
       itemDiv.appendChild(button);
       shopContainer.appendChild(itemDiv);
     }
-
   });
 }
 
 
-
 let currentClicks = parseInt(localStorage.getItem("climb_clicks")) || 0;
-let best = parseInt(localStorage.getItem("climb_best")) || 0;
 let climberY = canvas.height - 40;
 let clickHistory = [];
 
@@ -148,10 +189,9 @@ function drawClimber() {
 function updateProgress() {
   const percent = Math.min((currentClicks / TOTAL_CLICKS) * 100, 100);
   progression.textContent = `Progression : ${currentClicks} / ${TOTAL_CLICKS} (${Math.floor(percent)}%)`;
-  bestEl.textContent = `Record : ${best} clics`;
 
-  const bottomY = canvas.height - 20; // Position de départ du grimpeur
-  const topY = 40; // Position max qu’il peut atteindre
+  const bottomY = canvas.height - 20;
+  const topY = 40;
   climberY = bottomY - ((bottomY - topY) * (currentClicks / TOTAL_CLICKS));
 
   drawClimber();
@@ -160,9 +200,16 @@ function updateProgress() {
     clickBtn.disabled = true;
     progression.textContent += " 🏔️ Tu as atteint le sommet !";
     restartBtn.style.display = "inline-block";
+    clearInterval(timerInterval);
+
+    if (!bestTime || elapsedTime < bestTime) {
+      bestTime = elapsedTime;
+      localStorage.setItem("climb_best_time", bestTime);
+    }
+
+    bestEl.textContent = `Meilleur temps : ${Math.floor(bestTime / 1000)}s`;
   }
 }
-
 
 clickBtn.addEventListener("click", () => {
   const now = Date.now();
@@ -176,27 +223,36 @@ clickBtn.addEventListener("click", () => {
   clickHistory.push(now);
   let increment = doubleClickActive ? 2 : 1;
   currentClicks += increment;
-  if (currentClicks > best) {
-    best = currentClicks;
-    localStorage.setItem("climb_best", best);
-  }
 
   localStorage.setItem("climb_clicks", currentClicks);
+  if (currentClicks >= TOTAL_CLICKS && !timerInterval) clearInterval(timerInterval);
   updateProgress();
   renderShop();
 });
 
-
 restartBtn.addEventListener("click", () => {
   currentClicks = 0;
   localStorage.setItem("climb_clicks", currentClicks);
+  startTime = Date.now();
+  elapsedTime = 0;
+  localStorage.setItem("climb_start_time", startTime);
+  localStorage.setItem("climb_elapsed_time", 0);
+  clearInterval(timerInterval);
+  timerInterval = null;
   clickBtn.disabled = false;
   restartBtn.style.display = "none";
   updateProgress();
+  startTimer();
 });
+
+if (bestTime) {
+  bestEl.textContent = `Meilleur temps : ${Math.floor(bestTime / 1000)}s`;
+}
 
 drawClimber();
 updateProgress();
+renderShop();
+startTimer();
 </script>
 
 <script src="./js/dark.js"></script>
