@@ -47,6 +47,7 @@
 <div id="theme-toggle-container">
   <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
 </div>
+<div id="shop" style="color:white; max-width: 300px; margin: auto;"></div>
 
 <canvas id="game" width="1000" height="800"></canvas>
 <button id="click-btn">🖱️ Clique pour grimper !</button>
@@ -63,6 +64,73 @@ const bestEl = document.getElementById("best");
 const restartBtn = document.getElementById("restart");
 
 const TOTAL_CLICKS = 8848;
+
+
+// shop 
+const shopItems = [
+  {
+    id: "doubleClick",
+    name: "Double Clic",
+    description: "Chaque clic compte double",
+    cost: 200,
+    effect: () => { doubleClickActive = true; }
+  },
+  {
+    id: "autoClick",
+    name: "Auto Clic",
+    description: "Ajoute 1 clic par seconde",
+    cost: 500,
+    effect: () => {
+      if (!autoClickInterval) {
+        autoClickInterval = setInterval(() => {
+          currentClicks++;
+          localStorage.setItem("climb_clicks", currentClicks);
+          updateProgress();
+        }, 1000);
+      }
+    }
+  }
+];
+
+// bonus actif
+let doubleClickActive = false;
+let autoClickInterval = null;
+let purchasedItems = JSON.parse(localStorage.getItem("climb_purchases")) || [];
+
+
+
+// affiche le shop
+function renderShop() {
+  const shopContainer = document.getElementById("shop");
+  shopContainer.innerHTML = "<h2>🏪 Boutique</h2>";
+
+  shopItems.forEach(item => {
+    const bought = purchasedItems.includes(item.id);
+    const button = document.createElement("button");
+    button.textContent = `${item.name} (${item.cost} clics)`;
+    button.disabled = bought || currentClicks < item.cost;
+    button.title = item.description;
+
+    button.addEventListener("click", () => {
+      if (currentClicks >= item.cost && !bought) {
+        currentClicks -= item.cost;
+        item.effect();
+        purchasedItems.push(item.id);
+        localStorage.setItem("climb_purchases", JSON.stringify(purchasedItems));
+        localStorage.setItem("climb_clicks", currentClicks);
+        updateProgress();
+        renderShop();
+      }
+    });
+
+    const itemDiv = document.createElement("div");
+    itemDiv.appendChild(button);
+    shopContainer.appendChild(itemDiv);
+  });
+}
+
+
+
 let currentClicks = parseInt(localStorage.getItem("climb_clicks")) || 0;
 let best = parseInt(localStorage.getItem("climb_best")) || 0;
 let climberY = canvas.height - 40;
@@ -103,7 +171,8 @@ clickBtn.addEventListener("click", () => {
   }
 
   clickHistory.push(now);
-  currentClicks++;
+  let increment = doubleClickActive ? 2 : 1;
+  currentClicks += increment;
   if (currentClicks > best) {
     best = currentClicks;
     localStorage.setItem("climb_best", best);
@@ -111,7 +180,9 @@ clickBtn.addEventListener("click", () => {
 
   localStorage.setItem("climb_clicks", currentClicks);
   updateProgress();
+  renderShop();
 });
+
 
 restartBtn.addEventListener("click", () => {
   currentClicks = 0;
