@@ -50,11 +50,11 @@ let bestScore = localStorage.getItem("dodge_best") || 0;
 bestScoreEl.textContent = `Best: ${bestScore}`;
 
 function resetGame(startNow = false) {
-  player = { x: 140, y: 460, w: 20, h: 20, speed: 5 };
+  player = { x: 140, y: 460, w: 20, h: 20, speed: 1.5 };
   enemies = [];
   keys = {};
   score = 0;
-  speed = 2;
+  speed = 0.5;
   isGameOver = false;
   gravityDown = true;
   lastGravitySwitch = 0;
@@ -145,7 +145,7 @@ function update() {
       scoreEl.textContent = `Score: ${score}`;
 
       // Augmenter la vitesse tous les 10 points
-      if (score % 10 === 0) speed += 0.5;
+      if (score % 10 === 0) speed += 0.2;
 
       // Inverser la gravité tous les 100 points
       if (score % 50 === 0 && score !== 0 && score !== lastGravitySwitch) {
@@ -162,7 +162,9 @@ function update() {
   });
 
   // Spawn enemy aléatoirement
-  if (Math.random() < 0.03) spawnEnemy();
+  if (Math.random() < 0.02) { // 2% de chance par frame
+  spawnEnemy();
+}
 
   gameLoop = requestAnimationFrame(update);
 }
