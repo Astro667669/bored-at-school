@@ -1,35 +1,29 @@
+function checkIfAdIsBlocked() {
+    const adContainer = document.getElementById('atcontainer-C86E387157f60d5125b9bd69ed6b7980');
 
+    // Vérifie si l'élément existe
+    if (!adContainer) {
+        adBlockedAction("🧱 Le conteneur publicitaire est supprimé.");
+        return;
+    }
 
+    const style = window.getComputedStyle(adContainer);
+    const isHidden = style.display === 'none' || style.visibility === 'hidden' || adContainer.offsetHeight === 0;
 
-function detectAdBlock() {
-    console.log("🔍 Vérification AdBlock...");
-
-    // 1️⃣ Vérifie si l'élément leurre est masqué ou supprimé
-    const ad = document.querySelector('.adsbox');
-    const baitBlocked = !ad || getComputedStyle(ad).display === 'none' || ad.offsetHeight === 0;
-
-    // 2️⃣ Prépare un faux script pub pour test de blocage JS
-    const fakeScript = document.createElement('script');
-    fakeScript.src = "/ads.js?v=" + Date.now();
-    fakeScript.onerror = handleAdBlock;
-
-    // Résultat
-    if (baitBlocked) {
-        handleAdBlock();
-    } else {
-        document.body.appendChild(fakeScript);
+    if (isHidden) {
+        adBlockedAction("🕵️‍♂️ Le conteneur publicitaire est masqué.");
     }
 }
 
-function handleAdBlock() {
-    if (!sessionStorage.getItem("adblock_redirected")) {
-        sessionStorage.setItem("adblock_redirected", "true");
-        alert("🚫 AdBlock détecté ! Merci de le désactiver pour continuer.");
-        // Optionnel : redirection ou blocage
-        // window.location.href = "/adblock-detected";
-        // document.body.innerHTML = "<h1>Veuillez désactiver AdBlock pour continuer.</h1>";
-    }
+function adBlockedAction(message) {
+    console.warn(message);
+    alert("🚫 Publicité bloquée détectée ! Merci de désactiver AdBlock pour soutenir le site.");
+    // Optionnel : bloquer ou rediriger
+    // window.location.href = "/adblock-detected";
 }
 
-window.addEventListener('load', () => setTimeout(detectAdBlock, 300));
-
+// Vérifie dès que la page est chargée, et régulièrement
+window.addEventListener('load', () => {
+    checkIfAdIsBlocked();
+    setInterval(checkIfAdIsBlocked, 100); // toutes les 10 secondes
+});
