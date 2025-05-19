@@ -31,7 +31,7 @@ function applySavedTheme() {
     link.classList.toggle('dark-mode', isDark);
   }
 
-  toggleBtn.textContent = isDark ? '☀️ Mode clair' : '🌙 Mode sombre';
+  toggleBtn.textContent = isDark ? '☀️' : '🌙';
 }
 
 // Toggle et sauvegarde
@@ -42,7 +42,7 @@ toggleBtn.addEventListener('click', () => {
     link.classList.toggle('dark-mode');
   }
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  toggleBtn.textContent = isDark ? '☀️ Mode clair' : '🌙 Mode sombre';
+  toggleBtn.textContent = isDark ? '☀️' : '🌙';
 });
 
 // Appliquer au load

@@ -6,6 +6,8 @@
   <title>Climb the Everest</title>
   <link rel="stylesheet" href="./css/bodgethesquares.css">
   <link rel="stylesheet" href="./css/dark.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"
+     crossorigin="anonymous"></script>
   <style>
     body{
       margin: 0;
@@ -54,8 +56,8 @@
   text-decoration: none;
   font-family: Arial, sans-serif;
   z-index: 9999;
-">🏠 Accueil</a>
-
+">🏠 Menu</a>
+<h1>Extreme Climber!</h1>
 <div id="theme-toggle-container">
   <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
 </div>
@@ -76,6 +78,10 @@ const clickBtn = document.getElementById("click-btn");
 const progression = document.getElementById("progression");
 const bestEl = document.getElementById("best");
 const restartBtn = document.getElementById("restart");
+
+const climberImg = new Image();
+climberImg.src = "sticman.png";
+
 
 const TOTAL_CLICKS = 8848;
 
@@ -129,9 +135,24 @@ const shopItems = [
     description: "Ajoute 1 clic par seconde",
     cost: 1000,
     effect: () => {
-      if (!autoClickInterval) {
-        autoClickInterval = setInterval(() => {
+      if (!autoClickInterval1) {
+        autoClickInterval1 = setInterval(() => {
           currentClicks++;
+          localStorage.setItem("climb_clicks", currentClicks);
+          updateProgress();
+        }, 2000);
+      }
+    }
+  },
+  {
+    id: "autoClick2",
+    name: "2 clic /2s",
+    description: "Ajoute 1 clic par seconde",
+    cost: 1800,
+    effect: () => {
+      if (!autoClickInterval2) {
+        autoClickInterval2 = setInterval(() => {
+          currentClicks += 2;
           localStorage.setItem("climb_clicks", currentClicks);
           updateProgress();
         }, 2000);
@@ -141,7 +162,9 @@ const shopItems = [
 ];
 
 let doubleClickActive = false;
-let autoClickInterval = null;
+let autoClickInterval1 = null;
+let autoClickInterval2 = null;
+
 let purchasedItems = JSON.parse(localStorage.getItem("climb_purchases")) || [];
 
 function renderShop() {
@@ -182,9 +205,14 @@ let clickHistory = [];
 
 function drawClimber() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#ggg";
-  ctx.fillRect(canvas.width / 2 + 70, climberY, 20, 20);
+  
+  const climberWidth = 30;
+  const climberHeight = 30;
+  const climberX = canvas.width / 2 + 70;
+
+  ctx.drawImage(climberImg, climberX, climberY, climberWidth, climberHeight);
 }
+
 
 function updateProgress() {
   const percent = Math.min((currentClicks / TOTAL_CLICKS) * 100, 100);
@@ -252,7 +280,15 @@ if (bestTime) {
 drawClimber();
 updateProgress();
 renderShop();
+
+// 👇 Active les bonus déjà achetés
+purchasedItems.forEach(id => {
+  const item = shopItems.find(i => i.id === id);
+  if (item) item.effect();
+});
+
 startTimer();
+
 </script>
 
 <script src="./js/dark.js"></script>
