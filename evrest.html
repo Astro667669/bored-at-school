@@ -72,21 +72,21 @@ const shopItems = [
     id: "doubleClick",
     name: "Double Clic",
     description: "Chaque clic compte double",
-    cost: 200,
+    cost: 400,
     effect: () => { doubleClickActive = true; }
   },
   {
     id: "autoClick",
-    name: "Auto Clic",
+    name: "1 clic /2s",
     description: "Ajoute 1 clic par seconde",
-    cost: 500,
+    cost: 1000,
     effect: () => {
       if (!autoClickInterval) {
         autoClickInterval = setInterval(() => {
           currentClicks++;
           localStorage.setItem("climb_clicks", currentClicks);
           updateProgress();
-        }, 1000);
+        }, 2000);
       }
     }
   }
@@ -123,9 +123,12 @@ function renderShop() {
       }
     });
 
-    const itemDiv = document.createElement("div");
-    itemDiv.appendChild(button);
-    shopContainer.appendChild(itemDiv);
+    if (!bought) {
+      const itemDiv = document.createElement("div");
+      itemDiv.appendChild(button);
+      shopContainer.appendChild(itemDiv);
+    }
+
   });
 }
 
