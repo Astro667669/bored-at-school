@@ -13,17 +13,19 @@ body {
     .game-link {
       display: block;
       margin: 15px auto;
+      color: #000000;
       padding: 15px 30px;
-      background-color: #333;
-      color: white;
+      background: rgba(255, 255, 255, 0.404);
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
       text-decoration: none;
       font-size: 1.2rem;
       border-radius: 10px;
       width: 280px;
       transition: background 0.3s;
     }
+    
     .game-link:hover {
-      background-color: #555;
+      background-color: #a7a7a7a9;
     }
     #fakeOverlay {
       display: none;
@@ -40,17 +42,7 @@ body {
     }
     #hint {
       font-size: 0.9em;
-      color: #aaa;
       margin-bottom: 10px;
-    }
-    #howToBtn {
-      margin-top: 10px;
-      background: #444;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
     }
     #howToOverlay {
       display: none;
@@ -78,13 +70,15 @@ body {
     #imgInput {
       display: none;
     }
+    #howToBtn{
+      border-color: #00000000;
+    }
 
     .custom-file-upload {
       display: inline-block;
       padding: 12px 24px;
-      background-color: #333;
-      color: white;
-      font-size: 1rem;
+
+      /* font-size: 1rem; */
       border-radius: 10px;
       cursor: pointer;
       transition: background 0.3s;

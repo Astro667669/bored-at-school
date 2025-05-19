@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Climb the Everest</title>
+  <link rel="stylesheet" href="./css/bodgethesquares.css">
+  <link rel="stylesheet" href="./css/dark.css">
+  <style>
+    canvas {
+      background-image: url("./mont-everest-fond-blanc_908985-40370.jpg");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: -150px;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid white;
+    }
+    #click-btn, #restart {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+    }
+    #progression, #best {
+      text-align: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<a href="index.html" style="
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  background-color: #444;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  z-index: 9999;
+">🏠 Accueil</a>
+
+<div id="theme-toggle-container">
+  <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
+</div>
+
+<canvas id="game" width="1000" height="800"></canvas>
+<button id="click-btn">🖱️ Clique pour grimper !</button>
+<div id="progression"></div>
+<div id="best"></div>
+<button id="restart" style="display:none;">🔄 Recommencer</button>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const clickBtn = document.getElementById("click-btn");
+const progression = document.getElementById("progression");
+const bestEl = document.getElementById("best");
+const restartBtn = document.getElementById("restart");
+
+const TOTAL_CLICKS = 8848;
+let currentClicks = parseInt(localStorage.getItem("climb_clicks")) || 0;
+let best = parseInt(localStorage.getItem("climb_best")) || 0;
+let climberY = canvas.height - 40;
+let clickHistory = [];
+
+function drawClimber() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#ggg";
+  ctx.fillRect(canvas.width / 2 + 70, climberY, 20, 20);
+}
+
+function updateProgress() {
+  const percent = Math.min((currentClicks / TOTAL_CLICKS) * 100, 100);
+  progression.textContent = `Progression : ${currentClicks} / ${TOTAL_CLICKS} (${Math.floor(percent)}%)`;
+  bestEl.textContent = `Record : ${best} clics`;
+
+  const bottomY = canvas.height - 20; // Position de départ du grimpeur
+  const topY = 40; // Position max qu’il peut atteindre
+  climberY = bottomY - ((bottomY - topY) * (currentClicks / TOTAL_CLICKS));
+
+  drawClimber();
+
+  if (currentClicks >= TOTAL_CLICKS) {
+    clickBtn.disabled = true;
+    progression.textContent += " 🏔️ Tu as atteint le sommet !";
+    restartBtn.style.display = "inline-block";
+  }
+}
+
+
+clickBtn.addEventListener("click", () => {
+  const now = Date.now();
+  clickHistory = clickHistory.filter(t => now - t < 1000);
+
+  if (clickHistory.length >= 15) {
+    alert("Tu cliques trop vite poto ! Max 5/sec 🧤");
+    return;
+  }
+
+  clickHistory.push(now);
+  currentClicks++;
+  if (currentClicks > best) {
+    best = currentClicks;
+    localStorage.setItem("climb_best", best);
+  }
+
+  localStorage.setItem("climb_clicks", currentClicks);
+  updateProgress();
+});
+
+restartBtn.addEventListener("click", () => {
+  currentClicks = 0;
+  localStorage.setItem("climb_clicks", currentClicks);
+  clickBtn.disabled = false;
+  restartBtn.style.display = "none";
+  updateProgress();
+});
+
+drawClimber();
+updateProgress();
+</script>
+
+<script src="./js/dark.js"></script>
+<script src="./js/stealth.js"></script>
+</body>
+</html>

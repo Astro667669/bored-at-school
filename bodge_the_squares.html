@@ -25,9 +25,9 @@
 
     
     
-    <div id="theme-toggle-container">
-    <button id="theme-toggle">🌙 Mode sombre</button>
-    </div>
+  <div id="theme-toggle-container">
+  <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
+</div>
     <div id="countdown"></div>
     <canvas id="game" width="300" height="500"></canvas>
     <button id="start">Start Game</button>
@@ -148,7 +148,7 @@ function update() {
       if (score % 10 === 0) speed += 0.5;
 
       // Inverser la gravité tous les 100 points
-      if (score % 100 === 0 && score !== 0 && score !== lastGravitySwitch) {
+      if (score % 50 === 0 && score !== 0 && score !== lastGravitySwitch) {
         gravityDown = !gravityDown;
         lastGravitySwitch = score;
 

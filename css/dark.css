@@ -9,7 +9,20 @@ body.dark-mode {
   background-color: #121212;
   color: #f1f1f1;
 }
+.game-link.dark-mode{
 
+      display: block;
+      margin: 15px auto;
+      color: #ffffff;
+      padding: 15px 30px;
+      background-color: #ffffff86;
+      text-decoration: none;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      width: 280px;
+      transition: background 0.3s;
+    
+}
 /* Pour le bouton (optionnel, à styliser à ta sauce) */
 #theme-toggle {
   position: fixed;
@@ -18,7 +31,7 @@ body.dark-mode {
   padding: 10px;
   cursor: pointer;
 }
-button {
+button.dark {
       padding: 15px 30px;
       font-size: 1.2em;
       margin: 20px;
@@ -28,6 +41,6 @@ button {
       border-radius: 8px;
       transition: background-color 0.3s;
     }
-    button:hover {
+    button.dark:hover {
       background-color: #3367d6;
     }
