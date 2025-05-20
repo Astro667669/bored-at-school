@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +10,35 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"
      crossorigin="anonymous"></script>
   <meta name="google-adsense-account" content="ca-pub-2810189862013244">
+  <style>
+    #joystick-container {
+      display: none;
+      position: fixed;
+      bottom: 120px; /* assez haut pour éviter les pubs */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background-color: rgba(34, 34, 34, 0.8);
+      padding: 10px 20px;
+      border-radius: 12px;
+    }
+
+    #joystick-container button {
+      font-size: 28px;
+      background-color: #222;
+      color: white;
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin: 0 10px;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    #joystick-container button:active {
+      background-color: #333;
+    }
+  </style>
 </head>
 <body>
 
@@ -40,159 +70,24 @@
 <button id="restart">Restart</button>
 
 <!-- Joystick mobile -->
-<div id="joystick-container" style="display:none; position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 9999;">
-  <button id="left-btn" style="font-size: 30px; margin: 0 10px;">⬅️</button>
-  <button id="right-btn" style="font-size: 30px; margin: 0 10px;">➡️</button>
+<div id="joystick-container">
+  <button id="left-btn">⬅️</button>
+  <button id="right-btn">➡️</button>
 </div>
 
 <script src="./js/antiadblock.js"></script>
+<script src="./js/dark.js"></script>
+<script src="./js/stealth.js"></script>
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const startBtn = document.getElementById("start");
-const restartBtn = document.getElementById("restart");
-const scoreEl = document.getElementById("score");
-const bestScoreEl = document.getElementById("bestScore");
-const countdownEl = document.getElementById("countdown");
-
-let player, enemies, keys, score, speed, gameLoop, isGameOver, gravityDown, lastGravitySwitch;
-let bestScore = localStorage.getItem("dodge_best") || 0;
-bestScoreEl.textContent = `Best: ${bestScore}`;
-
-function resetGame(startNow = false) {
-  player = { x: 140, y: 460, w: 20, h: 20, speed: 1.5 };
-  enemies = [];
-  keys = {};
-  score = 0;
-  speed = 0.5;
-  isGameOver = false;
-  gravityDown = true;
-  lastGravitySwitch = 0;
-  scoreEl.textContent = "Score: 0";
-  restartBtn.style.display = "none";
-  cancelAnimationFrame(gameLoop);
-
-  if (startNow) {
-    startCountdown();
-  } else {
-    startBtn.style.display = "inline-block";
-  }
-}
-
-function startCountdown() {
-  startBtn.style.display = "none";
-  let count = 3;
-  countdownEl.textContent = count;
-
-  const interval = setInterval(() => {
-    count--;
-    if (count > 0) {
-      countdownEl.textContent = count;
-    } else if (count === 0) {
-      countdownEl.textContent = "GO!";
-    } else {
-      clearInterval(interval);
-      countdownEl.textContent = "";
-      requestAnimationFrame(update);
-    }
-  }, 1000);
-}
-
-function spawnEnemy() {
-  enemies.push({
-    x: Math.random() * (canvas.width - 20),
-    y: gravityDown ? -20 : canvas.height + 20,
-    w: 20,
-    h: 20
-  });
-}
-
-function update() {
-  if (isGameOver) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Draw player
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(player.x, player.y, player.w, player.h);
-
-  // Move player
-  if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
-  if (keys["ArrowRight"] && player.x + player.w < canvas.width) player.x += player.speed;
-
-  // Draw enemies
-  ctx.fillStyle = "#e74c3c";
-  enemies.forEach((enemy, i) => {
-    enemy.y += gravityDown ? speed : -speed;
-    ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
-
-    // Collision
-    if (
-      player.x < enemy.x + enemy.w &&
-      player.x + player.w > enemy.x &&
-      player.y < enemy.y + enemy.h &&
-      player.y + player.h > enemy.y
-    ) {
-      isGameOver = true;
-      ctx.fillStyle = "white";
-      ctx.font = "24px sans-serif";
-      ctx.fillText("💀 Game Over", 70, 250);
-
-      if (score > bestScore) {
-        bestScore = score;
-        localStorage.setItem("dodge_best", bestScore);
-        bestScoreEl.textContent = `Best: ${bestScore}`;
-      }
-
-      restartBtn.style.display = "inline-block";
-      cancelAnimationFrame(gameLoop);
-    }
-
-    // Remove enemy
-    if ((gravityDown && enemy.y > canvas.height) || (!gravityDown && enemy.y + enemy.h < 0)) {
-      enemies.splice(i, 1);
-      score++;
-      scoreEl.textContent = `Score: ${score}`;
-
-      if (score % 10 === 0) speed += 0.2;
-      if (score % 50 === 0 && score !== 0 && score !== lastGravitySwitch) {
-        gravityDown = !gravityDown;
-        lastGravitySwitch = score;
-        player.y = gravityDown
-          ? canvas.height - player.h - 20
-          : 20;
-      }
-    }
-  });
-
-  if (Math.random() < 0.02) {
-    spawnEnemy();
-  }
-
-  gameLoop = requestAnimationFrame(update);
-}
-
-// Clavier
-document.addEventListener("keydown", (e) => {
-  keys[e.key] = true;
-  if (isGameOver && (e.key === " " || e.key === "Enter")) {
-    resetGame(true);
-  }
-});
-document.addEventListener("keyup", (e) => (keys[e.key] = false));
-
-// Boutons
-restartBtn.addEventListener("click", () => resetGame(true));
-startBtn.addEventListener("click", () => resetGame(true));
-
-// Détection mobile + joystick
+// Joystick setup
 function isMobileDevice() {
   return (typeof window.orientation !== "undefined") || navigator.userAgent.toLowerCase().includes("mobile");
 }
 
 if (isMobileDevice()) {
   const joystick = document.getElementById("joystick-container");
-  joystick.style.display = "block";
+  joystick.style.display = "flex";
+  joystick.style.justifyContent = "center";
 
   const leftBtn = document.getElementById("left-btn");
   const rightBtn = document.getElementById("right-btn");
@@ -217,13 +112,8 @@ if (isMobileDevice()) {
     clearInterval(rightInterval);
   });
 }
-
-// Init
-resetGame();
 </script>
 
-<script src="./js/dark.js"></script>
-<script src="./js/stealth.js"></script>
 <script type="text/javascript">
   atOptions = {
     'key': 'c86e387157f60d5125b9bd69ed6b7980',
