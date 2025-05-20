@@ -2,6 +2,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
       padding-top: 50px;
+      display: block;
     }
     h1 {
       font-size: 2em;
