@@ -6,11 +6,8 @@
   <title>Climb the Everest</title>
   <link rel="stylesheet" href="./css/bodgethesquares.css">
   <link rel="stylesheet" href="./css/dark.css">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"
-     crossorigin="anonymous"></script>
-     <meta name="google-adsense-account" content="ca-pub-2810189862013244">
   <style>
-    body{
+    body {
       margin: 0;
       padding: 0;
     }
@@ -33,15 +30,14 @@
       font-size: 1.2rem;
       color: white;
     }
-    #shop{
+    #shop {
       display: flex;
       gap: 50px;
       justify-content: center;
     }
-    #shop div button{
+    #shop div button {
       width: 400px;
     }
-
   </style>
 </head>
 <body>
@@ -58,6 +54,7 @@
   font-family: Arial, sans-serif;
   z-index: 9999;
 ">🏠 Menu</a>
+
 <h1>Extreme Climber!</h1>
 <div id="theme-toggle-container">
   <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
@@ -72,8 +69,6 @@
 <div id="best"></div>
 <button id="restart" style="display:none;">🔄 Recommencer</button>
 
-
-<script src="./js/antiadblock.js"></script>
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -85,17 +80,19 @@ const restartBtn = document.getElementById("restart");
 const climberImg = new Image();
 climberImg.src = "sticman.png";
 
-
 const TOTAL_CLICKS = 8848;
-
-// Temps
 let startTime = parseInt(localStorage.getItem("climb_start_time")) || Date.now();
-
-
-
 let elapsedTime = parseInt(localStorage.getItem("climb_elapsed_time")) || 0;
 let timerInterval = null;
 let bestTime = parseInt(localStorage.getItem("climb_best_time")) || null;
+
+let doubleClickActive = false;
+let autoClickInterval1 = null;
+let autoClickInterval2 = null;
+let currentClicks = parseInt(localStorage.getItem("climb_clicks")) || 0;
+let climberY = canvas.height - 40;
+let clickHistory = [];
+let flipped = false; // ➕ Pour effet miroir
 
 function formatTime(ms) {
   const totalSeconds = Math.floor(ms / 1000);
@@ -107,23 +104,91 @@ function formatTime(ms) {
 
 function startTimer() {
   if (timerInterval) return;
-  startTime = Date.now() - elapsedTime; // ✅ corrige le point de départ pour pause/reprise
+  startTime = Date.now() - elapsedTime;
   timerInterval = setInterval(() => {
     elapsedTime = Date.now() - startTime;
     document.getElementById("timer").textContent = `⏱️ Temps : ${formatTime(elapsedTime)}`;
     localStorage.setItem("climb_elapsed_time", elapsedTime);
-    localStorage.setItem("climb_start_time", startTime); // garde le bon point de départ
+    localStorage.setItem("climb_start_time", startTime);
   }, 1000);
 }
 
+function drawClimber() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const climberWidth = 30;
+  const climberHeight = 30;
+  const climberX = canvas.width / 2 + 70;
 
-if (localStorage.getItem("climb_elapsed_time")) {
-  elapsedTime = parseInt(localStorage.getItem("climb_elapsed_time"));
-  startTime = Date.now() - elapsedTime; // 🧠 redéfinit startTime correctement
+  ctx.save();
+  if (flipped) {
+    ctx.translate(climberX + climberWidth / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(climberImg, -climberWidth / 2, climberY, climberWidth, climberHeight);
+  } else {
+    ctx.drawImage(climberImg, climberX, climberY, climberWidth, climberHeight);
+  }
+  ctx.restore();
 }
 
+function updateProgress() {
+  const percent = Math.min((currentClicks / TOTAL_CLICKS) * 100, 100);
+  progression.textContent = `Progression : ${currentClicks} / ${TOTAL_CLICKS} (${Math.floor(percent)}%)`;
 
-// Shop
+  const bottomY = canvas.height - 20;
+  const topY = 40;
+  climberY = bottomY - ((bottomY - topY) * (currentClicks / TOTAL_CLICKS));
+
+  drawClimber();
+
+  if (currentClicks >= TOTAL_CLICKS) {
+    clickBtn.disabled = true;
+    progression.textContent += " 🏔️ Tu as atteint le sommet !";
+    restartBtn.style.display = "inline-block";
+    clearInterval(timerInterval);
+
+    if (!bestTime || elapsedTime < bestTime) {
+      bestTime = elapsedTime;
+      localStorage.setItem("climb_best_time", bestTime);
+    }
+
+    bestEl.textContent = `Meilleur temps : ${Math.floor(bestTime / 1000)}s`;
+  }
+}
+
+clickBtn.addEventListener("click", () => {
+  const now = Date.now();
+  clickHistory = clickHistory.filter(t => now - t < 1000);
+  if (clickHistory.length >= 15) {
+    alert("Tu cliques trop vite poto ! Max 5/sec 🧤");
+    return;
+  }
+
+  clickHistory.push(now);
+  let increment = doubleClickActive ? 2 : 1;
+  currentClicks += increment;
+  flipped = !flipped; // ➕ Inverse à chaque clic
+
+  localStorage.setItem("climb_clicks", currentClicks);
+  if (currentClicks >= TOTAL_CLICKS && !timerInterval) clearInterval(timerInterval);
+  updateProgress();
+  renderShop();
+});
+
+restartBtn.addEventListener("click", () => {
+  currentClicks = 0;
+  localStorage.setItem("climb_clicks", currentClicks);
+  startTime = Date.now();
+  elapsedTime = 0;
+  localStorage.setItem("climb_start_time", startTime);
+  localStorage.setItem("climb_elapsed_time", 0);
+  clearInterval(timerInterval);
+  timerInterval = null;
+  clickBtn.disabled = false;
+  restartBtn.style.display = "none";
+  updateProgress();
+  startTimer();
+});
+
 const shopItems = [
   {
     id: "doubleClick",
@@ -164,23 +229,17 @@ const shopItems = [
   }
 ];
 
-let doubleClickActive = false;
-let autoClickInterval1 = null;
-let autoClickInterval2 = null;
-
 let purchasedItems = JSON.parse(localStorage.getItem("climb_purchases")) || [];
 
 function renderShop() {
   const shopContainer = document.getElementById("shop");
-  shopContainer.innerHTML = ""; // 🧹 Vide la boutique avant de la remplir
-
+  shopContainer.innerHTML = "";
   shopItems.forEach(item => {
     const bought = purchasedItems.includes(item.id);
     const button = document.createElement("button");
     button.textContent = `${item.name} (${item.cost} clics)`;
     button.disabled = bought || currentClicks < item.cost;
     button.title = item.description;
-
     button.addEventListener("click", () => {
       if (currentClicks >= item.cost && !bought) {
         currentClicks -= item.cost;
@@ -189,10 +248,9 @@ function renderShop() {
         localStorage.setItem("climb_purchases", JSON.stringify(purchasedItems));
         localStorage.setItem("climb_clicks", currentClicks);
         updateProgress();
-        renderShop(); // re-render proprement
+        renderShop();
       }
     });
-
     if (!bought) {
       const itemDiv = document.createElement("div");
       itemDiv.appendChild(button);
@@ -201,101 +259,20 @@ function renderShop() {
   });
 }
 
-
-let currentClicks = parseInt(localStorage.getItem("climb_clicks")) || 0;
-let climberY = canvas.height - 40;
-let clickHistory = [];
-
-function drawClimber() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  const climberWidth = 30;
-  const climberHeight = 30;
-  const climberX = canvas.width / 2 + 70;
-
-  ctx.drawImage(climberImg, climberX, climberY, climberWidth, climberHeight);
-}
-
-
-function updateProgress() {
-  const percent = Math.min((currentClicks / TOTAL_CLICKS) * 100, 100);
-  progression.textContent = `Progression : ${currentClicks} / ${TOTAL_CLICKS} (${Math.floor(percent)}%)`;
-
-  const bottomY = canvas.height - 20;
-  const topY = 40;
-  climberY = bottomY - ((bottomY - topY) * (currentClicks / TOTAL_CLICKS));
-
-  drawClimber();
-
-  if (currentClicks >= TOTAL_CLICKS) {
-    clickBtn.disabled = true;
-    progression.textContent += " 🏔️ Tu as atteint le sommet !";
-    restartBtn.style.display = "inline-block";
-    clearInterval(timerInterval);
-
-    if (!bestTime || elapsedTime < bestTime) {
-      bestTime = elapsedTime;
-      localStorage.setItem("climb_best_time", bestTime);
-    }
-
-    bestEl.textContent = `Meilleur temps : ${Math.floor(bestTime / 1000)}s`;
-  }
-}
-
-clickBtn.addEventListener("click", () => {
-  const now = Date.now();
-  clickHistory = clickHistory.filter(t => now - t < 1000);
-
-  if (clickHistory.length >= 15) {
-    alert("Tu cliques trop vite poto ! Max 5/sec 🧤");
-    return;
-  }
-
-  clickHistory.push(now);
-  let increment = doubleClickActive ? 2 : 1;
-  currentClicks += increment;
-
-  localStorage.setItem("climb_clicks", currentClicks);
-  if (currentClicks >= TOTAL_CLICKS && !timerInterval) clearInterval(timerInterval);
-  updateProgress();
-  renderShop();
-});
-
-restartBtn.addEventListener("click", () => {
-  currentClicks = 0;
-  localStorage.setItem("climb_clicks", currentClicks);
-  startTime = Date.now();
-  elapsedTime = 0;
-  localStorage.setItem("climb_start_time", startTime);
-  localStorage.setItem("climb_elapsed_time", 0);
-  clearInterval(timerInterval);
-  timerInterval = null;
-  clickBtn.disabled = false;
-  restartBtn.style.display = "none";
-  updateProgress();
-  startTimer();
-});
-
-if (bestTime) {
-  bestEl.textContent = `Meilleur temps : ${Math.floor(bestTime / 1000)}s`;
-}
-
 drawClimber();
 updateProgress();
 renderShop();
-
-// 👇 Active les bonus déjà achetés
 purchasedItems.forEach(id => {
   const item = shopItems.find(i => i.id === id);
   if (item) item.effect();
 });
-
 startTimer();
-
 </script>
 
 <script src="./js/dark.js"></script>
 <script src="./js/stealth.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"
+     crossorigin="anonymous"></script>
 <script type="text/javascript">
 	atOptions = {
 		'key' : 'c86e387157f60d5125b9bd69ed6b7980',
@@ -306,5 +283,6 @@ startTimer();
 	};
 </script>
 <script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
+
 </body>
 </html>
