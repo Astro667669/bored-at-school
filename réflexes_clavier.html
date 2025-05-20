@@ -62,6 +62,8 @@
     Replay
    </button>
 </div>
+<input type="text" id="mobileInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="opacity:0; position:absolute; z-index:-1;">
+
 <script src="./js/antiadblock.js"></script>
   <script>
   const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -138,6 +140,10 @@ function resetGame() {
   summaryDiv.style.display = 'none';
   scoreDiv.textContent = 'Score: 0';
 
+  // 👉 Force l'affichage du clavier mobile
+  const mobileInput = document.getElementById('mobileInput');
+  mobileInput.focus();
+
   let count = 3;
   letterDiv.textContent = count;
   letterDiv.classList.remove('flash');
@@ -159,26 +165,30 @@ function resetGame() {
 }
 
 
-  document.addEventListener('keydown', (e) => {
-    if (!isGameActive || summaryDiv.style.display === 'block') return;
 
-    const key = e.key.toLowerCase();
-    if (key === currentLetter) {
-      const reactionTime = Date.now() - startTime;
-      if (reactionTime <= 2000) {
-        score++;
-        reactionTimes.push(reactionTime);
-        scoreDiv.textContent = `Score: ${score}`;
-        clearTimeout(timer);
-        showNewLetter();
-      }
-    } else if (letters.includes(key)) {
-      isGameActive = false;
+  document.getElementById('mobileInput').addEventListener('input', (e) => {
+  const key = e.target.value.toLowerCase();
+  e.target.value = ''; // Reset le champ pour taper la prochaine lettre
+
+  if (!isGameActive || summaryDiv.style.display === 'block') return;
+
+  if (key === currentLetter) {
+    const reactionTime = Date.now() - startTime;
+    if (reactionTime <= 2000) {
+      score++;
+      reactionTimes.push(reactionTime);
+      scoreDiv.textContent = `Score: ${score}`;
       clearTimeout(timer);
-      letterDiv.textContent = 'Wrong key!';
-      setTimeout(finishGame, 1000);
+      showNewLetter();
     }
-  });
+  } else if (letters.includes(key)) {
+    isGameActive = false;
+    clearTimeout(timer);
+    letterDiv.textContent = 'Wrong key!';
+    setTimeout(finishGame, 1000);
+  }
+});
+
 
   startBtn.addEventListener('click', () => {
     startBtn.style.display = 'none';
@@ -194,6 +204,7 @@ function resetGame() {
     resetGame();
   });
 
+  
 
   </script>
   <script>
