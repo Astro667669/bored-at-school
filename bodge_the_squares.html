@@ -71,8 +71,8 @@
 
 <!-- Joystick mobile -->
 <div id="joystick-container">
-  <button id="left-btn">⬅️</button>
-  <button id="right-btn">➡️</button>
+  <button id="left-btn"><img src="left.png" alt="Left" draggable="false" style="width:40px;height:40px;pointer-events:none;"></button>
+  <button id="right-btn"><img src="right.png" alt="Right" draggable="false" style="width:40px;height:40px;pointer-events:none;"></button>
 </div>
 
 <script src="./js/antiadblock.js"></script>
@@ -181,7 +181,7 @@ function update() {
         bestScoreEl.textContent = `Best: ${bestScore}`;
       }
 
-      joystick.innerHTML = '<button id="restartJoystick">🔁 Restart</button>';
+      joystick.innerHTML = '<button id="restartJoystick"><img src="restart.png" alt="Restart" draggable="false" style="width:40px;height:40px;pointer-events:none;"></button>';
       const restartJoystick = document.getElementById("restartJoystick");
       restartJoystick.addEventListener("click", () => location.reload());
       joystick.style.display = "flex";
