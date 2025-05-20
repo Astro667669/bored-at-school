@@ -14,7 +14,7 @@
     #joystick-container {
       display: none;
       position: fixed;
-      bottom: 120px; /* assez haut pour éviter les pubs */
+      bottom: 100px; /* Assez haut pour éviter les pubs */
       left: 50%;
       transform: translateX(-50%);
       z-index: 1000;
@@ -67,7 +67,7 @@
 
 <div id="score">Score: 0</div>
 <div id="bestScore">Best: 0</div>
-<button id="restart">Restart</button>
+<button id="restart" style="display:none;">Restart</button>
 
 <!-- Joystick mobile -->
 <div id="joystick-container">
@@ -78,19 +78,153 @@
 <script src="./js/antiadblock.js"></script>
 <script src="./js/dark.js"></script>
 <script src="./js/stealth.js"></script>
+
 <script>
-// Joystick setup
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const startBtn = document.getElementById("start");
+const restartBtn = document.getElementById("restart");
+const scoreEl = document.getElementById("score");
+const bestScoreEl = document.getElementById("bestScore");
+const countdownEl = document.getElementById("countdown");
+const joystick = document.getElementById("joystick-container");
+const leftBtn = document.getElementById("left-btn");
+const rightBtn = document.getElementById("right-btn");
+
+let player, enemies, keys, score, speed, gameLoop, isGameOver, gravityDown, lastGravitySwitch;
+let bestScore = localStorage.getItem("dodge_best") || 0;
+bestScoreEl.textContent = `Best: ${bestScore}`;
+
+function resetGame(startNow = false) {
+  player = { x: 140, y: 460, w: 20, h: 20, speed: 1.5 };
+  enemies = [];
+  keys = {};
+  score = 0;
+  speed = 0.5;
+  isGameOver = false;
+  gravityDown = true;
+  lastGravitySwitch = 0;
+  scoreEl.textContent = "Score: 0";
+  restartBtn.style.display = "none";
+  startBtn.style.display = "none";
+
+  if (isMobileDevice()) {
+    joystick.style.display = "flex";
+  }
+
+  cancelAnimationFrame(gameLoop);
+
+  if (startNow) {
+    startCountdown();
+  } else {
+    startBtn.style.display = "inline-block";
+  }
+}
+
+function startCountdown() {
+  let count = 3;
+  countdownEl.textContent = count;
+
+  const interval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      countdownEl.textContent = count;
+    } else if (count === 0) {
+      countdownEl.textContent = "GO!";
+    } else {
+      clearInterval(interval);
+      countdownEl.textContent = "";
+      requestAnimationFrame(update);
+    }
+  }, 1000);
+}
+
+function spawnEnemy() {
+  enemies.push({
+    x: Math.random() * (canvas.width - 20),
+    y: gravityDown ? -20 : canvas.height + 20,
+    w: 20,
+    h: 20
+  });
+}
+
+function update() {
+  if (isGameOver) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(player.x, player.y, player.w, player.h);
+
+  if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+  if (keys["ArrowRight"] && player.x + player.w < canvas.width) player.x += player.speed;
+
+  ctx.fillStyle = "#e74c3c";
+  enemies.forEach((enemy, i) => {
+    enemy.y += gravityDown ? speed : -speed;
+    ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+
+    if (
+      player.x < enemy.x + enemy.w &&
+      player.x + player.w > enemy.x &&
+      player.y < enemy.y + enemy.h &&
+      player.y + player.h > enemy.y
+    ) {
+      isGameOver = true;
+      ctx.fillStyle = "white";
+      ctx.font = "24px sans-serif";
+      ctx.fillText("💀 Game Over", 70, 250);
+
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("dodge_best", bestScore);
+        bestScoreEl.textContent = `Best: ${bestScore}`;
+      }
+
+      joystick.innerHTML = '<button id="restartJoystick">🔁 Restart</button>';
+      const restartJoystick = document.getElementById("restartJoystick");
+      restartJoystick.addEventListener("click", () => location.reload());
+      joystick.style.display = "flex";
+
+      cancelAnimationFrame(gameLoop);
+    }
+
+    if ((gravityDown && enemy.y > canvas.height) || (!gravityDown && enemy.y + enemy.h < 0)) {
+      enemies.splice(i, 1);
+      score++;
+      scoreEl.textContent = `Score: ${score}`;
+      if (score % 10 === 0) speed += 0.2;
+      if (score % 50 === 0 && score !== 0 && score !== lastGravitySwitch) {
+        gravityDown = !gravityDown;
+        lastGravitySwitch = score;
+        player.y = gravityDown ? canvas.height - player.h - 20 : 20;
+      }
+    }
+  });
+
+  if (Math.random() < 0.02) spawnEnemy();
+
+  gameLoop = requestAnimationFrame(update);
+}
+
+// Keyboard
+document.addEventListener("keydown", (e) => {
+  keys[e.key] = true;
+  if (isGameOver && (e.key === " " || e.key === "Enter")) resetGame(true);
+});
+document.addEventListener("keyup", (e) => keys[e.key] = false);
+
+startBtn.addEventListener("click", () => resetGame(true));
+restartBtn.addEventListener("click", () => resetGame(true));
+
+// Mobile detection and joystick handling
 function isMobileDevice() {
   return (typeof window.orientation !== "undefined") || navigator.userAgent.toLowerCase().includes("mobile");
 }
 
 if (isMobileDevice()) {
-  const joystick = document.getElementById("joystick-container");
   joystick.style.display = "flex";
   joystick.style.justifyContent = "center";
-
-  const leftBtn = document.getElementById("left-btn");
-  const rightBtn = document.getElementById("right-btn");
 
   let leftInterval, rightInterval;
 
@@ -112,6 +246,8 @@ if (isMobileDevice()) {
     clearInterval(rightInterval);
   });
 }
+
+resetGame();
 </script>
 
 <script type="text/javascript">
