@@ -1,3 +1,8 @@
+html {
+  scroll-behavior: smooth;
+}
+
+
 body {
       font-family: 'Segoe UI', sans-serif;
       background: #111;
@@ -98,3 +103,62 @@ body {
       border: 2px solid #444;
       border-radius: 10px;
     }
+    button,
+input,
+a {
+  touch-action: manipulation;
+}
+/* Responsive general layout */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .game-link,
+  .custom-file-upload,
+  #closeHowTo,
+  #howToBtn {
+    width: 100%;
+    max-width: 90%;
+    font-size: 1rem;
+    padding: 12px;
+  }
+
+  #preview img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+  }
+
+  #howToOverlay {
+    padding: 40px 10px;
+  }
+
+  #hint {
+    font-size: 0.8em;
+  }
+}
+
+/* Ultra small screens (genre téléphone en mode portrait) */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .game-link {
+    font-size: 1rem;
+    padding: 10px 16px;
+  }
+
+  .custom-file-upload {
+    padding: 10px 16px;
+  }
+
+  #preview img {
+    max-width: 240px;
+  }
+}
