@@ -44,3 +44,6 @@ button.dark {
     button.dark:hover {
       background-color: #3367d6;
     }
+    iframe{
+      max-width: 90%;
+    }
