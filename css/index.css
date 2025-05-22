@@ -104,14 +104,14 @@ body {
       border-radius: 10px;
     }
     button,
-input,
-a {
-  touch-action: manipulation;
-}
+    input,
+    a {
+      touch-action: manipulation;
+    } 
 /* Responsive general layout */
 @media (max-width: 768px) {
   body {
-    padding: 20px;
+    padding: 0px;
   }
 
   h1 {
