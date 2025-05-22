@@ -1,43 +1,101 @@
-   body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      padding-top: 50px;
-      display: block;
-    }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-    label, select {
-      font-size: 1.2em;
-      margin: 10px;
-    }
-    button {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      margin: 20px;
-      background-color: #11c22f;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #0f8f2b;
-    }
-    #message {
-      font-size: 1.4em;
-      margin: 20px;
-    }
-    #result {
-      font-size: 1.5em;
-      font-weight: bold;
-      margin: 20px;
-    }
-    #container {
-      background: rgba(255, 255, 255, 0.404);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      display: inline-block;
-    }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #111;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+label, select {
+  font-size: 1.2em;
+  margin: 10px;
+}
+
+iframe {
+  margin: 0 auto;
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  padding: 15px 30px;
+  font-size: 1.2em;
+  margin: 20px;
+  background-color: #11c22f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0f8f2b;
+}
+
+#message {
+  font-size: 1.4em;
+  margin: 20px;
+}
+
+#result {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 20px;
+}
+
+.main {
+  background: rgba(255, 255, 255, 0.404);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+}
+
+/* ----------- RESPONSIVE ----------- */
+@media screen and (max-width: 768px) {
+  .main {
+    max-width: 4000px;
+    padding: 8vw;
+    border-radius: 0;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  iframe {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 7vw;
+  }
+
+  .main {
+    padding: 6vw;
+  }
+
+  button {
+    padding: 12px;
+    font-size: 5vw;
+  }
+
+  iframe {
+    width: 100%;
+  }
+}

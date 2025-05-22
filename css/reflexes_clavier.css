@@ -1,81 +1,116 @@
-   body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    h1 {
-      margin-bottom: 10px;
-      font-size: 3rem;
-    }
-    #letter {
-      font-size: 120px;
-      font-weight: bold;
-      margin: 30px;
-      color: #333;
-      transition: transform 0.3s ease;
-    }
-    #letter.dark-mode{
-      color: rgb(255, 255, 255);
-    }
-    #info, #score, #highscore {
-      font-size: 24px;
-      margin: 10px;
-    }
-    #startBtn, #replayBtn {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      margin: 20px;
-      background-color: #11c22f;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      transition: background-color 0.3s;
-    }
-    #startBtn:hover, #replayBtn:hover {
-      background-color: #0f8f2b;
-    }
-    #summary {
-      display: none;
-      background: rgba(255, 255, 255, 0.404);
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      margin-top: 30px;
-      max-width: 400px;
-      text-align: center;
-      animation: fadeIn 0.5s ease;
-    }
-    #summary h2 {
-      margin-bottom: 20px;
-    }
-    #avgTimeDisplay {
-      margin-top: 10px;
-      font-size: 28px;
-      font-weight: bold;
-    }
-    #totalHits {
-      font-size: 22px;
-      margin-top: 5px;
-    }
- #letter.flash {
+/* RESET + BASE */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* TITRE */
+h1 {
+  margin: 0 0 10px 0;
+  font-size: clamp(2rem, 6vw, 3rem);
+  text-align: center;
+}
+
+/* LETTRE CENTRALE */
+#letter {
+  font-size: clamp(60px, 25vw, 140px);
+  font-weight: bold;
+  margin: 30px;
+  color: #333;
+  transition: transform 0.3s ease;
+}
+
+#letter.dark-mode {
+  color: #fff;
+}
+
+#letter.flash {
   animation: pop 0.2s ease;
 }
 
 @keyframes pop {
-  0% {
-    transform: scale(1);
+  0% { transform: scale(1); }
+  50% { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
 
+/* INFOS & SCORES */
+#info, #score, #highscore {
+  font-size: clamp(16px, 2.5vw, 24px);
+  margin: 10px;
+  text-align: center;
+}
+
+/* BOUTONS */
+#startBtn, #replayBtn {
+  padding: 16px 32px;
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  margin: 20px;
+  background-color: #11c22f;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+  width: 100%;
+  max-width: 300px;
+}
+
+#startBtn:hover, #replayBtn:hover {
+  background-color: #0f8f2b;
+}
+
+/* SUMMARY */
+#summary {
+  display: none;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+
+#summary h2 {
+  margin-bottom: 20px;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+}
+
+#avgTimeDisplay {
+  margin-top: 10px;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: bold;
+}
+
+#totalHits {
+  font-size: clamp(18px, 3vw, 22px);
+  margin-top: 5px;
+}
+
+/* ADAPTATIONS LANDSCAPE MOBILE */
+@media (max-height: 500px) and (orientation: landscape) {
+  #letter {
+    font-size: clamp(40px, 20vh, 100px);
   }
-  50% {
-    transform: scale(1.5);
 
-  }
-  100% {
-    transform: scale(1);
-
+  #startBtn, #replayBtn {
+    font-size: 1rem;
+    padding: 10px 20px;
   }
 }
