@@ -8,20 +8,33 @@
   <link rel="stylesheet" href="./css/dark.css">
   <style>
     body {
-      margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #222;
+      color: white;
+      padding: 10px;
     }
     canvas {
       background-image: url("./mont-everest-fond-blanc_908985-40370.jpg");
       background-repeat: no-repeat;
       background-size: cover;
-      background-position: -150px;
+      background-position: center;
       display: block;
       border: 2px solid white;
+      width: 100%;
+      max-width: 1000px;
+      height: auto;
+      aspect-ratio: 5/4; /* Garde une bonne proportion */
+      margin: 0 auto;
     }
-    h2{
-      margin-top: 200px;
+
+    h1{
+      padding-top: 100px;
     }
+    h1, h2 {
+      margin: 20px 0;
+    }
+
     #click-btn, #restart {
       display: block;
       margin: 10px auto;
@@ -35,15 +48,42 @@
     }
     #shop {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      flex-wrap:wrap;
-      margin: 0 auto;
-      max-width: 80%;
+      gap: 10px;
     }
 
     #shop div button {
-      width: 400px;
+      width: 100%;
+      max-width: 300px;
+      padding: 10px;
+      font-size: 1rem;
     }
+    #shop div button {
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #333;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    #shop div button:hover {
+      background-color: #555;
+    }
+
+    @media (max-width: 600px) {
+      #click-btn, #restart {
+        font-size: 1rem;
+        padding: 8px 15px;
+      }
+
+      #shop div button {
+        max-width: 90vw;
+        font-size: 0.9rem;
+      }
+    }
+
+
 
   </style>
 </head>
