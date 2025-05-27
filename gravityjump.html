@@ -175,8 +175,7 @@ if (isMobile()) {
 
 function initGame() {
   gravity = 0.4;
-  jumpPower = -10;
-  score = 0;
+  jumpPower = -10;  score = 0;
   bestScore = localStorage.getItem('gravity_best') || 0;
   platforms = [];
   safeStart = true;
@@ -200,7 +199,8 @@ function initGame() {
   }
 
   player.vy = jumpPower * 0.1; // 💥 Big jump au départ !
-
+  leftBtn.style.display = 'inline-block';
+  rightBtn.style.display = 'inline-block';
   update();
 }
 

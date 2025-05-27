@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Express</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #222;
+      color: white;
+      text-align: center;
+    }
+    #quiz-container {
+      max-width: 600px;
+      margin: auto;
+    background: rgba(255, 255, 255, 0.404);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .question {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    .answer-btn {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      background: #555;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: 0.3s;
+    }
+    .answer-btn:hover {
+      background: #777;
+    }
+    .restart-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .restart-btn:hover {
+      background: #01a57c;
+    }
+  </style>
+  <link rel="stylesheet" href="./css/dark.css">
+</head>
+<body>
+        <div id="theme-toggle-container">
+  <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
+</div>
+<a href="index.html" style="
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        background-color: #444;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-family: Arial, sans-serif;
+        z-index: 9999;
+    ">🏠 Menu</a>
+  <h1>🧠 Quiz Express</h1>
+  <div id="quiz-container">Chargement des questions...</div>
+
+  <script>
+    let currentQuestion = 0;
+    let score = 0;
+    let questions = [];
+
+    async function translate(text, target = 'fr') {
+      try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text)}`);
+        const data = await res.json();
+        return data[0][0][0];
+      } catch (err) {
+        console.error("Erreur de traduction :", err);
+        return text; // fallback
+      }
+    }
+
+    async function loadQuestions() {
+      document.getElementById("quiz-container").innerHTML = "Chargement des questions...";
+      currentQuestion = 0;
+      score = 0;
+      questions = [];
+
+      try {
+        const res = await fetch("https://opentdb.com/api.php?amount=5&type=multiple&encode=url3986");
+        const data = await res.json();
+
+        for (let q of data.results) {
+          const correct = decodeURIComponent(q.correct_answer);
+          const incorrects = q.incorrect_answers.map(i => decodeURIComponent(i));
+          const allAnswers = [...incorrects];
+          allAnswers.splice(Math.floor(Math.random() * (incorrects.length + 1)), 0, correct);
+
+          const questionFr = await translate(decodeURIComponent(q.question));
+          const correctFr = await translate(correct);
+          const answersFr = await Promise.all(allAnswers.map(a => translate(a)));
+
+          questions.push({
+            question: questionFr,
+            correct: correctFr,
+            answers: answersFr
+          });
+        }
+
+        showQuestion();
+      } catch (error) {
+        document.getElementById("quiz-container").innerHTML = "Erreur lors du chargement des questions.";
+        console.error(error);
+      }
+    }
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = `
+        <div class="question">${q.question}</div>
+        ${q.answers.map(ans => `<button class="answer-btn">${ans}</button>`).join('')}
+      `;
+      document.querySelectorAll(".answer-btn").forEach(btn => {
+        btn.addEventListener("click", () => checkAnswer(btn.textContent));
+      });
+    }
+
+    function checkAnswer(answer) {
+      if (answer === questions[currentQuestion].correct) score++;
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = `
+        <h2>✅ Fin du quiz !</h2>
+        <p>Tu as ${score} / ${questions.length} bonnes réponses.</p>
+        <button class="restart-btn" onclick="loadQuestions()">🔁 Recommencer</button>
+      `;
+    }
+
+    loadQuestions();
+  </script>
+    <!-- banner 468x60 -->
+    <script type="text/javascript">
+	atOptions = {
+		'key' : 'c86e387157f60d5125b9bd69ed6b7980',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
+<script src="./js/dark.js"></script>
+<script src="./js/stealth.js"></script>
+<script src="./js/antiadblock.js"></script>
+</body>
+</html>
