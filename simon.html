@@ -33,9 +33,37 @@
         transform: translate(-50%, -50%);
     }
 
-    .pad.active {
-      opacity: 1;
-    }
+    .pad.active#green {
+        box-shadow: 0 0 30px 10px rgba(0, 255, 0, 0.8);
+
+        opacity: 1;
+        }
+
+    .pad.active#red {
+        box-shadow: 0 0 30px 10px rgba(255, 0, 0, 0.8);
+
+        opacity: 1;
+        }
+
+    .pad.active#yellow {
+        box-shadow: 0 0 30px 10px rgba(255, 255, 0, 0.8);
+
+        opacity: 1;
+        }
+
+    .pad.active#blue {
+        box-shadow: 0 0 30px 10px rgba(0, 0, 255, 0.8);
+
+        opacity: 1;
+        }
+
+    .pad.active#purple {
+        box-shadow: 0 0 30px 10px rgba(128, 0, 128, 0.8);
+
+        opacity: 1;
+        }
+
+
 
     /* Positionnement en cercle */
     #green   { background-color: green;  transform: translate(-50%, -50%) rotate(0deg) translateY(-160px); }
@@ -179,6 +207,17 @@ function checkPlayerInput() {
   }
 }
 </script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'c86e387157f60d5125b9bd69ed6b7980',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
+
 <script src="./js/dark.js"></script>
 <script src="./js/antiadblock.js"></script>
 <script src="./js/stealth.js"></script>

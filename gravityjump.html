@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gravity Jump</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; overflow: hidden; background: #222; position: relative; }
+    canvas { display: block; margin: auto; background: linear-gradient(to top, #333, #111); }
+    #restartBtn {
+      position: absolute;
+      left: 50%;
+      top: 60%;
+      transform: translate(-50%, -50%);
+      padding: 10px 20px;
+      font-size: 20px;
+      background-color: #0f0;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      display: none;
+      cursor: pointer;
+    }
+    #mobileControls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    }
+
+    #mobileControls button {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+    border: none;
+    border-radius: 50%;
+    background-color: #0f0;
+    color: #000;
+    box-shadow: 0 0 10px #0f0;
+    cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<!-- Buttons for mobile -->
+<div id="mobileControls">
+  <button id="leftBtn">⬅️</button>
+  <button id="rightBtn">➡️</button>
+</div>
+
+
+<button id="restartBtn" onclick="restartGame()">Rejouer</button>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+canvas.width = 400;
+canvas.height = 600;
+
+const restartBtn = document.getElementById('restartBtn');
+
+let gravity, jumpPower, score, bestScore, platforms, safeStart, safeStartDuration, countdown, countdownTimer, gameOver, player;
+
+function initGame() {
+  gravity = 0.4;
+  jumpPower = -10;
+  score = 0;
+  bestScore = localStorage.getItem('gravity_best') || 0;
+  platforms = [];
+  safeStart = true;
+  safeStartDuration = 180;
+  countdown = 3;
+  countdownTimer = 60;
+  gameOver = false;
+
+  player = {
+    x: 180,
+    y: 500,
+    width: 20,
+    height: 20,
+    vx: 0,
+    vy: 0,
+    color: '#0f0'
+  };
+
+  for (let i = 0; i < 10; i++) {
+    platforms.push(createPlatform(canvas.height - i * 60, i === 0));
+  }
+
+  update();
+}
+
+function createPlatform(y, ensureSafe = false) {
+  const width = 60;
+  let x;
+  if (ensureSafe) {
+    x = player.x - width / 2 + player.width / 2;
+    if (x < 0) x = 0;
+    if (x + width > canvas.width) x = canvas.width - width;
+  } else {
+    x = Math.random() * (canvas.width - width);
+  }
+  const speed = (Math.random() < 0.5 ? 1 : -1) * (Math.random() * 1 + 0.5);
+  return { x, y, width, height: 10, speed };
+}
+
+function drawPlayer() {
+  ctx.fillStyle = player.color;
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+function drawPlatform(platform) {
+  ctx.fillStyle = '#888';
+  ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+}
+
+function update() {
+  if (gameOver) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (safeStartDuration > 0) {
+    safeStartDuration--;
+    countdownTimer--;
+    if (countdownTimer === 0 && countdown > 0) {
+      countdown--;
+      countdownTimer = 60;
+    }
+    ctx.fillStyle = '#fff';
+    ctx.font = '48px Arial';
+    ctx.fillText(countdown > 0 ? countdown : "Go!", canvas.width / 2 - 40, canvas.height / 2);
+  } else {
+    safeStart = false;
+  }
+
+  if (!safeStart) {
+    player.vy += gravity;
+  }
+
+  player.y += player.vy;
+  player.x += player.vx;
+
+  if (player.x < 0) player.x = 0;
+  if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+  if (player.y > canvas.height) {
+    gameOver = true;
+    if (score > bestScore) {
+      bestScore = score;
+      localStorage.setItem('gravity_best', bestScore);
+    }
+    ctx.fillStyle = '#f00';
+    ctx.font = '32px Arial';
+    ctx.fillText('Game Over', 120, canvas.height / 2);
+    restartBtn.style.display = 'block';
+    return;
+  }
+
+  if (player.y < 300) {
+    const dy = 300 - player.y;
+    player.y = 300;
+    platforms.forEach(p => p.y += dy);
+    score += Math.floor(dy);
+  }
+
+  platforms = platforms.filter(p => p.y < canvas.height);
+
+  while (platforms.length < 10) {
+    let lastY = platforms.reduce((max, p) => p.y < max ? p.y : max, canvas.height);
+    platforms.push(createPlatform(lastY - 60));
+  }
+
+  platforms.forEach(p => {
+    p.x += p.speed;
+    if (p.x < 0 || p.x + p.width > canvas.width) p.speed *= -1;
+    drawPlatform(p);
+
+    if (
+      player.vy > 0 &&
+      player.x + player.width > p.x &&
+      player.x < p.x + p.width &&
+      player.y + player.height >= p.y &&
+      player.y + player.height <= p.y + p.height
+    ) {
+      player.vy = jumpPower;
+    }
+  });
+
+  drawPlayer();
+  ctx.fillStyle = '#fff';
+  ctx.font = '16px Arial';
+  ctx.fillText("Score: " + score, 10, 20);
+  ctx.fillText("Best: " + bestScore, 10, 40);
+
+  requestAnimationFrame(update);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') player.vx = -4;
+  if (e.key === 'ArrowRight') player.vx = 4;
+  if (e.key === ' ' && player.vy > 0) player.vy = jumpPower;
+});
+
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') player.vx = 0;
+});
+
+// Touch controls
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+
+let touchLeft = false;
+let touchRight = false;
+
+leftBtn.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchLeft = true;
+});
+leftBtn.addEventListener('touchend', e => {
+  e.preventDefault();
+  touchLeft = false;
+});
+
+rightBtn.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchRight = true;
+});
+rightBtn.addEventListener('touchend', e => {
+  e.preventDefault();
+  touchRight = false;
+});
+
+setInterval(() => {
+  if (keysPressed['ArrowLeft'] || touchLeft) player.vx = -4;
+  else if (keysPressed['ArrowRight'] || touchRight) player.vx = 4;
+  else player.vx = 0;
+}, 1000 / 60);
+
+
+
+function restartGame() {
+  restartBtn.style.display = 'none';
+  initGame();
+}
+
+initGame();
+</script>
+</body>
+</html>
