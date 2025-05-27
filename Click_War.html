@@ -94,9 +94,24 @@
       pointer-events: none;
     }
   </style>
+  <link rel="stylesheet" href="./css/dark.css">
 </head>
 <body>
-
+  <div id="theme-toggle-container">
+  <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
+</div>
+<a href="index.html" style="
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        background-color: #444;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-family: Arial, sans-serif;
+        z-index: 9999;
+    ">🏠 Menu</a>
   <h1>🎯 Click War</h1>
   <div class="stats">Temps restant : <span id="time">10</span>s</div>
   <div class="stats">Score : <span id="score">0</span></div>
@@ -234,5 +249,7 @@
 </script>
 <script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
 <script src="./js/antiadblock.js"></script>
+<script src="./js/stealth.js"></script>
+<script src="./js/dark.js"></script>
 </body>
 </html>
