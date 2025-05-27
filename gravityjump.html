@@ -5,73 +5,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gravity Jump</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html { height: 100%; overflow: hidden; background: #222; position: relative; }
-    canvas { display: block; margin: auto; background: linear-gradient(to top, #333, #111); }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #111;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 40px;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
-    #restartBtn {
-      position: absolute;
-      left: 50%;
-      top: 60%;
-      transform: translate(-50%, -50%);
-      padding: 10px 20px;
-      font-size: 20px;
-      background-color: #0f0;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      display: none;
-      cursor: pointer;
-    }
-    #mobileControls {
-      display: none;
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
+/* Reset & base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background: #111;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
+/* Canvas responsive */
+canvas {
+  background: linear-gradient(to top, #333, #111);
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 2 / 3;
+  display: block;
+}
 
-    #mobileControls button {
-      width: 80px;
-      height: 80px;
-      font-size: 32px;
-      border: none;
-      border-radius: 50%;
-      background-color: #0f0;
-      color: #000;
-      box-shadow: 0 0 10px #0f0;
-      cursor: pointer;
-    }
-    #leftBtn{
-        background-image: url(./left.png);
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-    #rightBtn{
-        background-image: url(./right.png);
-        background-position: center;
-        background-repeat: no-repeat;
-     
-        background-size: cover;
-    }
-    @media (min-width: 768px) {
-      #mobileControls {
-        display: none !important;
-      }
-    }
+/* Title */
+h1 {
+  font-size: 2rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+/* Rejouer button */
+#restartBtn {
+  position: relative;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  background-color: #0f0;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  display: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Mobile controls */
+#mobileControls {
+  display: none;
+  margin-top: 20px;
+  gap: 20px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+#mobileControls button {
+  width: 60px;
+  height: 60px;
+  font-size: 28px;
+  border: none;
+  border-radius: 50%;
+  background-color: #0f0;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 0 10px #0f0;
+  cursor: pointer;
+}
+
+#leftBtn {
+  background-image: url(./left.png);
+}
+#rightBtn {
+  background-image: url(./right.png);
+}
+
+/* Menu button */
+a[href="index.html"] {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  background-color: #444;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  z-index: 9999;
+
+}
+
+/* Theme toggle button */
+#theme-toggle-container {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 9999;
+}
+#theme-toggle {
+  padding: 10px 20px;
+}
+
+/* Affichage mobile seulement */
+@media (min-width: 768px) {
+  #mobileControls {
+    display: none !important;
+  }
+}
+
 
   </style>
   <link rel="stylesheet" href="./css/dark.css">
@@ -271,6 +315,17 @@ document.addEventListener('keydown', e => {
     return;
   }
 });
+
+function resizeCanvas() {
+  const ratio = 2 / 3;
+  const maxWidth = 400;
+  const screenWidth = window.innerWidth;
+  const width = Math.min(screenWidth, maxWidth);
+  canvas.width = width;
+  canvas.height = width / ratio;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
 
 document.addEventListener('keyup', e => {
