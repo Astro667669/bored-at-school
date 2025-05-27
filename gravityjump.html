@@ -35,13 +35,13 @@
       cursor: pointer;
     }
     #mobileControls {
-    display: none; /* on cache par défaut */
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    gap: 20px;
+      display: none;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
     }
+
 
     #mobileControls button {
       width: 80px;
@@ -64,8 +64,15 @@
         background-image: url(./right.png);
         background-position: center;
         background-repeat: no-repeat;
+     
         background-size: cover;
     }
+    @media (min-width: 768px) {
+      #mobileControls {
+        display: none !important;
+      }
+    }
+
   </style>
   <link rel="stylesheet" href="./css/dark.css">
 </head>
@@ -85,12 +92,15 @@
         font-family: Arial, sans-serif;
         z-index: 9999;
     ">🏠 Menu</a>
-    <h1>🌌 Gravity Jump</h1>
+<h1>🌌 Gravity Jump</h1>
 <canvas id="game"></canvas>
+
+<!-- Contrôles mobiles (en dessous du canvas) -->
 <div id="mobileControls">
   <button id="leftBtn"></button>
   <button id="rightBtn"></button>
 </div>
+
 <button id="restartBtn" onclick="restartGame()">Rejouer</button>
 
 <script>
@@ -115,6 +125,7 @@ function isMobile() {
 if (isMobile()) {
   document.getElementById('mobileControls').style.display = 'flex';
 }
+
 
 
 
