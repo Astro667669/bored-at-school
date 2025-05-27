@@ -258,18 +258,26 @@ function update() {
   player.x = Math.max(0, Math.min(player.x, canvas.width - player.width));
 
   if (player.y > canvas.height) {
-    gameOver = true;
-    if (score > bestScore) {
-      bestScore = score;
-      localStorage.setItem('gravity_best', bestScore);
-    }
-    ctx.fillStyle = '#f00';
-    ctx.font = '32px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
-    restartBtn.style.display = 'block';
-    return;
+  gameOver = true;
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('gravity_best', bestScore);
   }
+  ctx.fillStyle = '#f00';
+  ctx.font = '32px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+  restartBtn.style.display = 'block';
+
+  // 👇 On remet les flèches si t'es sur mobile
+  if (isMobile()) {
+    leftBtn.style.display = 'none';
+    rightBtn.style.display = 'none';
+  }
+
+  return;
+}
+
 
   if (player.y < 300) {
     const dy = 300 - player.y;
