@@ -254,8 +254,13 @@ function update() {
 
 document.addEventListener('keydown', e => {
   keysPressed[e.key] = true;
-  if (e.key === ' ' && player.vy > 0) player.vy = jumpPower;
+  // On désactive la barre espace
+  if (e.key === ' ') {
+    e.preventDefault(); // facultatif : évite de scroller la page
+    return;
+  }
 });
+
 
 document.addEventListener('keyup', e => {
   keysPressed[e.key] = false;
