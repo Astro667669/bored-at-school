@@ -1,22 +1,27 @@
-
 document.addEventListener('DOMContentLoaded', function () {
   fetch('https://api.ipify.org?format=json')
     .then(response => response.json())
     .then(data => {
       const ip = data.ip;
-      const ignoreIps = ['193.5.240.10']; // 🔁 Remplace ici par l'IP de ton école
+      const ignoreIps = [
+        '193.5.240.10', // Ex: IP de l'école
+        '82.124.33.12', // ➕ Ajoute ici d'autres IP
+        '90.56.78.90'
+      ];
+
+      console.log(`🌐 IP publique détectée : ${ip}`);
 
       if (ignoreIps.includes(ip)) {
         console.log('🎉 IP autorisée, détection Adblock désactivée');
-        return; // ⛔ On sort direct
+        return;
+      } else {
+        alert(`⚠️ IP ${ip} détectée mais pas dans la whitelist. Vérification Adblock en cours...`);
       }
 
-      // Détection Adblock (comme dans ton script original)
-      let adblockDetected = false;
-
+      // 🔎 Détection Adblock
       setTimeout(() => {
         const iframes = document.querySelectorAll('iframe');
-        let found = false;
+        let adFound = false;
 
         iframes.forEach(iframe => {
           const src = iframe.getAttribute('src') || '';
@@ -27,13 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
           );
 
           if (isLikelyAd) {
-            found = true;
+            adFound = true;
           }
         });
 
-        if (!found) {
-          adblockDetected = true;
-
+        if (!adFound) {
+          console.log('🚫 Aucune pub détectée → Adblock actif');
           const overlay = document.createElement('div');
           overlay.style.position = 'fixed';
           overlay.style.top = '0';
@@ -68,12 +72,11 @@ document.addEventListener('DOMContentLoaded', function () {
           overlay.appendChild(message);
           document.body.appendChild(overlay);
         } else {
-          console.log('✅ Iframe pub détectée');
+          console.log('✅ Pub détectée → pas de blocage Adblock');
         }
       }, 3000);
     })
     .catch(err => {
-      console.error('Erreur lors de la récupération de l\'IP :', err);
+      console.error('❌ Erreur lors de la récupération de l\'IP :', err);
     });
 });
-
