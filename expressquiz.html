@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Quiz Express</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -49,6 +51,43 @@
     .restart-btn:hover {
       background: #01a57c;
     }
+    @media screen and (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  #quiz-container {
+    padding: 15px;
+  }
+
+  .question {
+    font-size: 18px;
+  }
+
+  .answer-btn {
+    font-size: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .restart-btn {
+    width: 100%;
+    font-size: 18px;
+  }
+
+  #theme-toggle-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 999;
+  }
+
+  a[href="index.html"] {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}
+
   </style>
   <link rel="stylesheet" href="./css/dark.css">
 </head>
@@ -72,88 +111,118 @@
   <div id="quiz-container">Chargement des questions...</div>
 
   <script>
-    let currentQuestion = 0;
-    let score = 0;
-    let questions = [];
+  let currentQuestion = 0;
+  let score = 0;
+  let questions = [];
+  let userAnswers = [];
 
-    async function translate(text, target = 'fr') {
-      try {
-        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text)}`);
-        const data = await res.json();
-        return data[0][0][0];
-      } catch (err) {
-        console.error("Erreur de traduction :", err);
-        return text; // fallback
-      }
+  async function translate(text, target = 'fr') {
+    try {
+      const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${target}&dt=t&q=${encodeURIComponent(text)}`);
+      const data = await res.json();
+      return data[0][0][0];
+    } catch (err) {
+      console.error("Erreur de traduction :", err);
+      return text;
     }
+  }
 
-    async function loadQuestions() {
-      document.getElementById("quiz-container").innerHTML = "Chargement des questions...";
-      currentQuestion = 0;
-      score = 0;
-      questions = [];
+  async function loadQuestions() {
+    document.getElementById("quiz-container").innerHTML = "Chargement des questions...";
+    currentQuestion = 0;
+    score = 0;
+    questions = [];
+    userAnswers = [];
 
-      try {
-        const res = await fetch("https://opentdb.com/api.php?amount=5&type=multiple&encode=url3986");
-        const data = await res.json();
+    try {
+      const res = await fetch("https://opentdb.com/api.php?amount=5&type=multiple&encode=url3986");
+      const data = await res.json();
 
-        for (let q of data.results) {
-          const correct = decodeURIComponent(q.correct_answer);
-          const incorrects = q.incorrect_answers.map(i => decodeURIComponent(i));
-          const allAnswers = [...incorrects];
-          allAnswers.splice(Math.floor(Math.random() * (incorrects.length + 1)), 0, correct);
+      for (let q of data.results) {
+        const correct = decodeURIComponent(q.correct_answer);
+        const incorrects = q.incorrect_answers.map(i => decodeURIComponent(i));
+        const allAnswers = [...incorrects];
+        allAnswers.splice(Math.floor(Math.random() * (incorrects.length + 1)), 0, correct);
 
-          const questionFr = await translate(decodeURIComponent(q.question));
-          const correctFr = await translate(correct);
-          const answersFr = await Promise.all(allAnswers.map(a => translate(a)));
+        const questionFr = await translate(decodeURIComponent(q.question));
+        const correctFr = await translate(correct);
+        const answersFr = await Promise.all(allAnswers.map(a => translate(a)));
 
-          questions.push({
-            question: questionFr,
-            correct: correctFr,
-            answers: answersFr
-          });
-        }
-
-        showQuestion();
-      } catch (error) {
-        document.getElementById("quiz-container").innerHTML = "Erreur lors du chargement des questions.";
-        console.error(error);
+        questions.push({
+          question: questionFr,
+          correct: correctFr,
+          answers: answersFr
+        });
       }
-    }
 
-    function showQuestion() {
-      const q = questions[currentQuestion];
-      const container = document.getElementById("quiz-container");
-      container.innerHTML = `
-        <div class="question">${q.question}</div>
-        ${q.answers.map(ans => `<button class="answer-btn">${ans}</button>`).join('')}
+      showQuestion();
+    } catch (error) {
+      document.getElementById("quiz-container").innerHTML = "Erreur lors du chargement des questions.";
+      console.error(error);
+    }
+  }
+
+  function showQuestion() {
+    const q = questions[currentQuestion];
+    const container = document.getElementById("quiz-container");
+    container.innerHTML = `
+      <div class="question">${q.question}</div>
+      ${q.answers.map(ans => `<button class="answer-btn">${ans}</button>`).join('')}
+    `;
+    document.querySelectorAll(".answer-btn").forEach(btn => {
+      btn.addEventListener("click", () => checkAnswer(btn.textContent));
+    });
+  }
+
+  function checkAnswer(answer) {
+    userAnswers.push({
+      question: questions[currentQuestion].question,
+      correct: questions[currentQuestion].correct,
+      selected: answer
+    });
+
+    if (answer === questions[currentQuestion].correct) score++;
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function showResult() {
+    const container = document.getElementById("quiz-container");
+    let resultHTML = `
+      <h2>✅ Fin du quiz !</h2>
+      <p>Tu as <strong>${score}</strong> / ${questions.length} bonnes réponses.</p>
+      <hr>
+      <h3>📋 Résumé des questions :</h3>
+    `;
+
+    userAnswers.forEach((entry, index) => {
+      resultHTML += `
+        <div style="margin-bottom: 20px; text-align: left;">
+          <strong>Q${index + 1} :</strong> ${entry.question}<br>
+          ✅ <strong>Bonne réponse :</strong> ${entry.correct}<br>
+          ${entry.selected !== entry.correct
+            ? `❌ <strong>Ta réponse :</strong> <span style="color: orange">${entry.selected}</span>`
+            : `✔️ <strong>Ta réponse :</strong> ${entry.selected}`
+          }
+        </div>
+        <hr>
       `;
-      document.querySelectorAll(".answer-btn").forEach(btn => {
-        btn.addEventListener("click", () => checkAnswer(btn.textContent));
-      });
-    }
+    });
 
-    function checkAnswer(answer) {
-      if (answer === questions[currentQuestion].correct) score++;
-      currentQuestion++;
-      if (currentQuestion < questions.length) {
-        showQuestion();
-      } else {
-        showResult();
-      }
-    }
+    resultHTML += `
+      <button class="restart-btn" onclick="loadQuestions()">🔁 Recommencer</button>
+    `;
 
-    function showResult() {
-      const container = document.getElementById("quiz-container");
-      container.innerHTML = `
-        <h2>✅ Fin du quiz !</h2>
-        <p>Tu as ${score} / ${questions.length} bonnes réponses.</p>
-        <button class="restart-btn" onclick="loadQuestions()">🔁 Recommencer</button>
-      `;
-    }
+    container.innerHTML = resultHTML;
+  }
 
-    loadQuestions();
-  </script>
+  loadQuestions();
+</script>
+
     <!-- banner 468x60 -->
     <script type="text/javascript">
 	atOptions = {
