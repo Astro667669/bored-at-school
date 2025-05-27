@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Super Simon 5 Couleurs</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: sans-serif;
+      background-color: #222;
+      color: #fff;
+    }
+
+    #game {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        margin: 40px auto;
+        border-radius: 50%;
+        }
+
+
+    .pad {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .pad.active {
+      opacity: 1;
+    }
+
+    /* Positionnement en cercle */
+    #green   { background-color: green;  transform: translate(-50%, -50%) rotate(0deg) translateY(-160px); }
+    #red     { background-color: red;    transform: translate(-50%, -50%) rotate(72deg) translateY(-160px); }
+    #yellow  { background-color: yellow; transform: translate(-50%, -50%) rotate(144deg) translateY(-160px); }
+    #blue    { background-color: blue;   transform: translate(-50%, -50%) rotate(216deg) translateY(-160px); }
+    #purple  { background-color: purple; transform: translate(-50%, -50%) rotate(288deg) translateY(-160px); }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+  </style>
+  <link rel="stylesheet" href="./css/dark.css">
+</head>
+<body>
+      <div id="theme-toggle-container">
+  <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
+</div>
+  <h1>Super Simon</h1>
+  <div id="game">
+    <div class="pad" id="green"></div>
+    <div class="pad" id="red"></div>
+    <div class="pad" id="yellow"></div>
+    <div class="pad" id="blue"></div>
+    <div class="pad" id="purple"></div>
+  </div>
+  <button id="start">Démarrer</button>
+  <div id="levelDisplay" style="margin-top: 20px;"></div>
+  <a href="index.html" style="
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        background-color: #444;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-family: Arial, sans-serif;
+        z-index: 9999;
+    ">🏠 Menu</a>
+
+<script>
+const pads = {
+  green: document.getElementById('green'),
+  red: document.getElementById('red'),
+  yellow: document.getElementById('yellow'),
+  blue: document.getElementById('blue'),
+  purple: document.getElementById('purple')
+};
+
+const colors = Object.keys(pads);
+let sequence = [];
+let playerSequence = [];
+let awaitingPlayer = false;
+let level = 0;
+let bestScore = localStorage.getItem("bestScoreSimon") || 0;
+
+const startBtn = document.getElementById('start');
+const levelDisplay = document.getElementById('levelDisplay');
+updateLevelText();
+
+startBtn.addEventListener('click', startGame);
+
+function startGame() {
+  sequence = [];
+  level = 0;
+  updateLevelText();
+  nextRound();
+}
+
+function updateLevelText() {
+  levelDisplay.innerHTML = `
+    <h2>Niveau : ${level}</h2>
+    <h3>Meilleur Score : ${bestScore}</h3>
+  `;
+}
+
+function nextRound() {
+  awaitingPlayer = false;
+  playerSequence = [];
+  const nextColor = colors[Math.floor(Math.random() * colors.length)];
+  sequence.push(nextColor);
+  level++;
+  updateLevelText();
+  playSequence();
+}
+
+function playSequence() {
+  let delay = 0;
+  sequence.forEach((color, index) => {
+    setTimeout(() => {
+      activatePad(color);
+    }, delay);
+    delay += 700;
+  });
+  setTimeout(() => {
+    awaitingPlayer = true;
+  }, delay);
+}
+
+function activatePad(color) {
+  pads[color].classList.add('active');
+  const soundIndex = colors.indexOf(color) + 1;
+  const audio = new Audio(`https://s3.amazonaws.com/freecodecamp/simonSound${soundIndex <= 4 ? soundIndex : 4}.mp3`);
+  audio.play();
+  setTimeout(() => {
+    pads[color].classList.remove('active');
+  }, 400);
+}
+
+colors.forEach(color => {
+  pads[color].addEventListener('click', () => {
+    if (!awaitingPlayer) return;
+    playerSequence.push(color);
+    activatePad(color);
+    checkPlayerInput();
+  });
+});
+
+function checkPlayerInput() {
+  const currentMove = playerSequence.length - 1;
+  if (playerSequence[currentMove] !== sequence[currentMove]) {
+  const score = level - 1; // Le vrai niveau atteint avant l'erreur
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem("bestScoreSimon", bestScore);
+  }
+  alert(`💥 Perdu ! Tu as atteint le niveau ${score}.`);
+  updateLevelText();
+  return;
+}
+
+
+  if (playerSequence.length === sequence.length) {
+    awaitingPlayer = false;
+    setTimeout(() => {
+      nextRound();
+    }, 1000);
+  }
+}
+</script>
+<script src="./js/dark.js"></script>
+<script src="./js/antiadblock.js"></script>
+<script src="./js/stealth.js"></script>
+</body>
+</html>

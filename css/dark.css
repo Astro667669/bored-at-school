@@ -11,15 +11,9 @@ body.dark-mode {
 }
 .game-link.dark-mode{
 
-      display: block;
-      margin: 15px auto;
+
       color: #ffffff;
-      padding: 15px 30px;
       background-color: #ffffff86;
-      text-decoration: none;
-      font-size: 1.2rem;
-      border-radius: 10px;
-      width: 280px;
       transition: background 0.3s;
     
 }
