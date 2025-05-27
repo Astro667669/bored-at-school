@@ -4,21 +4,20 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(data => {
       const ip = data.ip;
       const ignoreIps = [
-        '193.5.240.10', // Ex: IP de l'école
-        '82.124.33.12', // ➕ Ajoute ici d'autres IP
+        '193.5.240.10', // IP école
+        '82.124.33.12', // Ajoute ici
         '90.56.78.90'
       ];
 
       console.log(`🌐 IP publique détectée : ${ip}`);
 
       if (ignoreIps.includes(ip)) {
-        console.log('🎉 IP autorisée, détection Adblock désactivée');
+        console.log('🎉 IP autorisée → détection Adblock bypassée');
+        alert(`✅ IP autorisée (${ip}) détectée : bypass de la détection Adblock activé.`);
         return;
-      } else {
-        alert(`⚠️ IP ${ip} détectée mais pas dans la whitelist. Vérification Adblock en cours...`);
       }
 
-      // 🔎 Détection Adblock
+      // Détection Adblock
       setTimeout(() => {
         const iframes = document.querySelectorAll('iframe');
         let adFound = false;
