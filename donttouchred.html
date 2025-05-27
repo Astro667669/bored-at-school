@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Don't Touch the Red</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #game-area {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      border: 2px dashed #444;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .circle {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .green { background: #2ed573; }
+    .red { background: #ff4757; }
+    .stats {
+      font-size: 18px;
+      margin: 5px;
+    }
+    #start-btn {
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #2ed573;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    #start-btn:hover {
+      background: #20bf6b;
+    }
+    #countdown {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      font-weight: bold;
+      color: #ffffff;
+      z-index: 100;
+      display: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🟢 Don't Touch the Red 🔴</h1>
+  <div class="stats">Temps restant : <span id="time">30</span>s</div>
+  <div class="stats">Score : <span id="score">0</span></div>
+  <div class="stats">Meilleur Score : <span id="best-score">0</span></div>
+  <div id="game-area"></div>
+  <div id="countdown">3</div>
+  <button id="start-btn">Commencer</button>
+
+  <script>
+    const gameArea = document.getElementById("game-area");
+    const scoreEl = document.getElementById("score");
+    const bestScoreEl = document.getElementById("best-score");
+    const timeEl = document.getElementById("time");
+    const startBtn = document.getElementById("start-btn");
+    const countdownEl = document.getElementById("countdown");
+
+    let score = 0;
+    let timeLeft = 30;
+    let bestScore = localStorage.getItem("bestDontTouch") || 0;
+    bestScoreEl.textContent = bestScore;
+    let timerInterval, spawnInterval;
+
+    function getRandomPosition(size = 60) {
+      const x = Math.random() * (gameArea.clientWidth - size);
+      const y = Math.random() * (gameArea.clientHeight - size);
+      return { x, y };
+    }
+
+    function spawnCircle() {
+      const circle = document.createElement("div");
+      circle.classList.add("circle");
+
+      const isGreen = Math.random() > 0.3;
+      circle.classList.add(isGreen ? "green" : "red");
+
+      const { x, y } = getRandomPosition();
+      circle.style.left = `${x}px`;
+      circle.style.top = `${y}px`;
+
+      circle.addEventListener("click", () => {
+        if (circle.classList.contains("red")) {
+          endGame(true);
+        } else {
+          score++;
+          scoreEl.textContent = score;
+          gameArea.removeChild(circle);
+        }
+      });
+
+      gameArea.appendChild(circle);
+      setTimeout(() => circle.remove(), 1500);
+    }
+
+    function updateTimer() {
+      timeLeft--;
+      timeEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }
+
+    function startCountdown(callback) {
+      let count = 3;
+      countdownEl.textContent = count;
+      countdownEl.style.display = "block";
+
+      const countdown = setInterval(() => {
+        count--;
+        countdownEl.textContent = count > 0 ? count : "GO!";
+        if (count < 0) {
+          clearInterval(countdown);
+          countdownEl.style.display = "none";
+          callback();
+        }
+      }, 1000);
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      scoreEl.textContent = score;
+      timeEl.textContent = timeLeft;
+      startBtn.style.display = "none";
+      gameArea.innerHTML = "";
+
+      timerInterval = setInterval(updateTimer, 1000);
+      spawnInterval = setInterval(spawnCircle, 600);
+    }
+
+    function endGame(hitRed = false) {
+      clearInterval(timerInterval);
+      clearInterval(spawnInterval);
+      gameArea.innerHTML = "";
+      startBtn.style.display = "inline-block";
+      startBtn.textContent = hitRed ? "💀 Tu as cliqué un rouge ! Rejouer ?" : "Rejouer";
+
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("bestDontTouch", bestScore);
+        bestScoreEl.textContent = bestScore;
+      }
+    }
+
+    startBtn.addEventListener("click", () => {
+      startCountdown(startGame);
+    });
+  </script>
+  <!-- banner 468x60 -->
+    <script type="text/javascript">
+	atOptions = {
+		'key' : 'c86e387157f60d5125b9bd69ed6b7980',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
+<script src="./js/dark.js"></script>
+<script src="./js/stealth.js"></script>
+<script src="./js/antiadblock.js"></script>
+</body>
+</html>
