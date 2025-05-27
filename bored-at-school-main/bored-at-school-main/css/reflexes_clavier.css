@@ -27,16 +27,18 @@
     }
     #startBtn, #replayBtn {
       padding: 15px 30px;
-      font-size: 1.2em;
-      margin: 20px;
-      background-color: #11c22f;
-      color: white;
+      font-size: 20px;
       border: none;
-      border-radius: 8px;
-      transition: background-color 0.3s;
+      background: #4CAF50;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s ease;
+      margin: 10px;
     }
     #startBtn:hover, #replayBtn:hover {
-      background-color: #0f8f2b;
+      background: #45a049;
+      transform: scale(1.05);
     }
     #summary {
       display: none;

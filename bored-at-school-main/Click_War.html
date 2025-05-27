@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"
+     crossorigin="anonymous"></script>
+     <meta name="google-adsense-account" content="ca-pub-2810189862013244">
+  <title>Click War</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #game-area {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      border: 2px dashed #444;
+      margin-bottom: 20px;
+    }
+
+    #click-btn {
+      position: absolute;
+      padding: 12px 24px;
+      font-size: 18px;
+      background: #ff4757;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    #click-btn:hover {
+      background: #e84118;
+    }
+
+    .stats {
+      font-size: 18px;
+      margin: 5px;
+    }
+
+    #start-btn {
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #2ed573;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    #start-btn:hover {
+      background: #20bf6b;
+    }
+
+    #error-message {
+      display: none;
+      color: #ff6b81;
+      font-size: 18px;
+      margin-top: 20px;
+      background: #2f2f2f;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid #ff4757;
+    }
+
+    #countdown {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 80px;
+      font-weight: bold;
+      color: #ffffff;
+      z-index: 100;
+      display: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎯 Click War</h1>
+  <div class="stats">Temps restant : <span id="time">10</span>s</div>
+  <div class="stats">Score : <span id="score">0</span></div>
+  <div class="stats">Best Score : <span id="best-score">0</span></div>
+
+  <div id="game-area">
+    <button id="click-btn" style="display: none;">Clique-moi !</button>
+    <div id="countdown">3</div>
+  </div>
+
+  <button id="start-btn">Lancer la partie</button>
+
+  <div id="error-message">💀 La fenêtre est trop petite !<br> Agrandis-la pour pouvoir jouer !</div>
+  <script src="./js/antiadblock.js"></script>
+  <script>
+    const clickBtn = document.getElementById("click-btn");
+    const startBtn = document.getElementById("start-btn");
+    const scoreEl = document.getElementById("score");
+    const timeEl = document.getElementById("time");
+    const bestScoreEl = document.getElementById("best-score");
+    const gameArea = document.getElementById("game-area");
+    const errorMsg = document.getElementById("error-message");
+    const countdownEl = document.getElementById("countdown");
+
+    let score = 0;
+    let timeLeft = 10;
+    let timer;
+    let countdownTimer;
+    let bestScore = localStorage.getItem("clickWarBestScore") || 0;
+    bestScoreEl.textContent = bestScore;
+
+    function checkWindowSize() {
+      if (window.innerWidth < 400 || window.innerHeight < 500) {
+        clickBtn.style.display = "none";
+        startBtn.style.display = "none";
+        errorMsg.style.display = "block";
+        countdownEl.style.display = "none";
+        return false;
+      } else {
+        errorMsg.style.display = "none";
+        startBtn.style.display = "inline-block";
+        return true;
+      }
+    }
+
+    window.addEventListener("resize", checkWindowSize);
+    window.addEventListener("load", checkWindowSize);
+
+    function getRandomPosition() {
+      const btnWidth = 140;
+      const btnHeight = 50;
+      const areaWidth = gameArea.clientWidth;
+      const areaHeight = gameArea.clientHeight;
+
+      const x = Math.floor(Math.random() * (areaWidth - btnWidth));
+      const y = Math.floor(Math.random() * (areaHeight - btnHeight));
+
+      return { x, y };
+    }
+
+    function moveButton() {
+      const { x, y } = getRandomPosition();
+      clickBtn.style.left = `${x}px`;
+      clickBtn.style.top = `${y}px`;
+    }
+
+    function updateTime() {
+      timeLeft--;
+      timeEl.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        clickBtn.style.display = "none";
+        startBtn.style.display = "inline-block";
+        startBtn.textContent = "Rejouer";
+
+        if (score > bestScore) {
+          bestScore = score;
+          localStorage.setItem("clickWarBestScore", bestScore);
+          bestScoreEl.textContent = bestScore;
+        }
+      }
+    }
+
+    function startCountdown(callback) {
+      let count = 3;
+      countdownEl.textContent = count;
+      countdownEl.style.display = "block";
+
+      countdownTimer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownEl.textContent = count;
+        } else {
+          countdownEl.textContent = "GO!";
+          clearInterval(countdownTimer);
+          setTimeout(() => {
+            countdownEl.style.display = "none";
+            callback();
+          }, 500);
+        }
+      }, 1000);
+    }
+
+    clickBtn.addEventListener("click", () => {
+      score++;
+      scoreEl.textContent = score;
+      moveButton();
+    });
+
+    startBtn.addEventListener("click", () => {
+      if (!checkWindowSize()) return;
+
+      startBtn.style.display = "none";
+      clickBtn.style.display = "none";
+      score = 0;
+      timeLeft = 10;
+      scoreEl.textContent = score;
+      timeEl.textContent = timeLeft;
+
+      startCountdown(() => {
+        clickBtn.style.display = "block";
+        moveButton();
+        timer = setInterval(updateTime, 1000);
+      });
+    });
+  </script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'c86e387157f60d5125b9bd69ed6b7980',
+		'format' : 'iframe',
+		'height' : 60,
+		'width' : 468,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'cfda0322c19803b8d20336dbcfd5a7a3',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/cfda0322c19803b8d20336dbcfd5a7a3/invoke.js"></script>
+</body>
+</html>

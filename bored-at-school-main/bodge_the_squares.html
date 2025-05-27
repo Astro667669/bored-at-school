@@ -1,42 +1,85 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dodge the Squares</title>
+  <title>Square Dodger</title>
   <link rel="stylesheet" href="./css/bodgethesquares.css">
   <link rel="stylesheet" href="./css/dark.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244"
+     crossorigin="anonymous"></script>
+  <meta name="google-adsense-account" content="ca-pub-2810189862013244">
+  <style>
+    #joystick-container {
+      display: none;
+      position: fixed;
+      bottom: 100px; /* Assez haut pour éviter les pubs */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background-color: rgba(34, 34, 34, 0.8);
+      padding: 10px 20px;
+      border-radius: 12px;
+    }
+
+    #joystick-container button {
+      font-size: 28px;
+      background-color: #222;
+      color: white;
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin: 0 10px;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    #joystick-container button:active {
+      background-color: #333;
+    }
+  </style>
 </head>
 <body>
 
-    <a href="index.html" style="
-        position: fixed;
-        bottom: 15px;
-        left: 15px;
-        background-color: #444;
-        color: white;
-        padding: 10px 15px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-family: Arial, sans-serif;
-        z-index: 9999;
-    ">🏠 Accueil</a>
-    
+<a href="index.html" style="
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    background-color: #444;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    z-index: 9999;
+">🏠 Menu</a>
 
-    
-    
-    <div id="theme-toggle-container">
-    <button id="theme-toggle">🌙 Mode sombre</button>
-    </div>
-    <div id="countdown"></div>
-    <canvas id="game" width="300" height="500"></canvas>
-    <button id="start">Start Game</button>
+<h1>⬜🟥Square Dodger🟥⬜</h1>
 
-    <div id="score">Score: 0</div>
-    <div id="bestScore">Best: 0</div>
-    <button id="restart">Restart</button>
+<div id="theme-toggle-container">
+  <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
+</div>
 
-  <script>
+<div id="countdown"></div>
+<canvas id="game" width="300" height="500"></canvas>
+<button id="start">Start Game</button>
+
+<div id="score">Score: 0</div>
+<div id="bestScore">Best: 0</div>
+<button id="restart" style="display:none;">Restart</button>
+
+<!-- Joystick mobile -->
+<div id="joystick-container">
+  <button id="left-btn"><img src="left.png" alt="Left" draggable="false" style="width:40px;height:40px;pointer-events:none;"></button>
+  <button id="right-btn"><img src="right.png" alt="Right" draggable="false" style="width:40px;height:40px;pointer-events:none;"></button>
+</div>
+
+<script src="./js/antiadblock.js"></script>
+<script src="./js/dark.js"></script>
+<script src="./js/stealth.js"></script>
+
+<script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const startBtn = document.getElementById("start");
@@ -44,22 +87,31 @@ const restartBtn = document.getElementById("restart");
 const scoreEl = document.getElementById("score");
 const bestScoreEl = document.getElementById("bestScore");
 const countdownEl = document.getElementById("countdown");
+const joystick = document.getElementById("joystick-container");
+const leftBtn = document.getElementById("left-btn");
+const rightBtn = document.getElementById("right-btn");
 
 let player, enemies, keys, score, speed, gameLoop, isGameOver, gravityDown, lastGravitySwitch;
 let bestScore = localStorage.getItem("dodge_best") || 0;
 bestScoreEl.textContent = `Best: ${bestScore}`;
 
 function resetGame(startNow = false) {
-  player = { x: 140, y: 460, w: 20, h: 20, speed: 5 };
+  player = { x: 140, y: 460, w: 20, h: 20, speed: 1.5 };
   enemies = [];
   keys = {};
   score = 0;
-  speed = 2;
+  speed = 0.5;
   isGameOver = false;
   gravityDown = true;
   lastGravitySwitch = 0;
   scoreEl.textContent = "Score: 0";
   restartBtn.style.display = "none";
+  startBtn.style.display = "none";
+
+  if (isMobileDevice()) {
+    joystick.style.display = "flex";
+  }
+
   cancelAnimationFrame(gameLoop);
 
   if (startNow) {
@@ -70,7 +122,6 @@ function resetGame(startNow = false) {
 }
 
 function startCountdown() {
-  startBtn.style.display = "none";
   let count = 3;
   countdownEl.textContent = count;
 
@@ -102,21 +153,17 @@ function update() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw player
   ctx.fillStyle = "#fff";
   ctx.fillRect(player.x, player.y, player.w, player.h);
 
-  // Move player
   if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
   if (keys["ArrowRight"] && player.x + player.w < canvas.width) player.x += player.speed;
 
-  // Update and draw enemies
   ctx.fillStyle = "#e74c3c";
   enemies.forEach((enemy, i) => {
     enemy.y += gravityDown ? speed : -speed;
     ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
 
-    // Collision
     if (
       player.x < enemy.x + enemy.w &&
       player.x + player.w > enemy.x &&
@@ -134,55 +181,94 @@ function update() {
         bestScoreEl.textContent = `Best: ${bestScore}`;
       }
 
-      restartBtn.style.display = "inline-block";
+      joystick.innerHTML = '<button id="restartJoystick"><img src="restart.png" alt="Restart" draggable="false" style="width:40px;height:40px;pointer-events:none;"></button>';
+      const restartJoystick = document.getElementById("restartJoystick");
+      restartJoystick.addEventListener("click", () => location.reload());
+      joystick.style.display = "flex";
+
       cancelAnimationFrame(gameLoop);
     }
 
-    // Remove enemy if off screen
     if ((gravityDown && enemy.y > canvas.height) || (!gravityDown && enemy.y + enemy.h < 0)) {
       enemies.splice(i, 1);
       score++;
       scoreEl.textContent = `Score: ${score}`;
-
-      // Augmenter la vitesse tous les 10 points
-      if (score % 10 === 0) speed += 0.5;
-
-      // Inverser la gravité tous les 100 points
-      if (score % 100 === 0 && score !== 0 && score !== lastGravitySwitch) {
+      if (score % 10 === 0) speed += 0.2;
+      if (score % 50 === 0 && score !== 0 && score !== lastGravitySwitch) {
         gravityDown = !gravityDown;
         lastGravitySwitch = score;
-
-        // Déplacer le joueur à l'opposé selon la nouvelle gravité
-        player.y = gravityDown
-          ? canvas.height - player.h - 20 // bas
-          : 20; // haut
+        player.y = gravityDown ? canvas.height - player.h - 20 : 20;
       }
-
     }
   });
 
-  // Spawn enemy aléatoirement
-  if (Math.random() < 0.03) spawnEnemy();
+  if (Math.random() < 0.02) spawnEnemy();
 
   gameLoop = requestAnimationFrame(update);
 }
 
+// Keyboard
 document.addEventListener("keydown", (e) => {
   keys[e.key] = true;
-
-  if (isGameOver && (e.key === " " || e.key === "Enter")) {
-    resetGame(true);
-  }
+  if (isGameOver && (e.key === " " || e.key === "Enter")) resetGame(true);
 });
+document.addEventListener("keyup", (e) => keys[e.key] = false);
 
-document.addEventListener("keyup", (e) => (keys[e.key] = false));
-restartBtn.addEventListener("click", () => resetGame(true));
 startBtn.addEventListener("click", () => resetGame(true));
+restartBtn.addEventListener("click", () => resetGame(true));
 
-// Lancer le jeu en attente
+// Mobile detection and joystick handling
+function isMobileDevice() {
+  return (typeof window.orientation !== "undefined") || navigator.userAgent.toLowerCase().includes("mobile");
+}
+
+if (isMobileDevice()) {
+  joystick.style.display = "flex";
+  joystick.style.justifyContent = "center";
+
+  let leftInterval, rightInterval;
+
+  leftBtn.addEventListener("touchstart", () => {
+    keys["ArrowLeft"] = true;
+    leftInterval = setInterval(() => keys["ArrowLeft"] = true, 100);
+  });
+  leftBtn.addEventListener("touchend", () => {
+    keys["ArrowLeft"] = false;
+    clearInterval(leftInterval);
+  });
+
+  rightBtn.addEventListener("touchstart", () => {
+    keys["ArrowRight"] = true;
+    rightInterval = setInterval(() => keys["ArrowRight"] = true, 100);
+  });
+  rightBtn.addEventListener("touchend", () => {
+    keys["ArrowRight"] = false;
+    clearInterval(rightInterval);
+  });
+}
+
 resetGame();
+</script>
 
-  </script>
-  <script src="./js/dark.js"></script>
+<script type="text/javascript">
+  atOptions = {
+    'key': 'c86e387157f60d5125b9bd69ed6b7980',
+    'format': 'iframe',
+    'height': 60,
+    'width': 468,
+    'params': {}
+  };
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'cfda0322c19803b8d20336dbcfd5a7a3',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/cfda0322c19803b8d20336dbcfd5a7a3/invoke.js"></script>
 </body>
 </html>

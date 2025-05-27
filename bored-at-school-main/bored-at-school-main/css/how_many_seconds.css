@@ -2,7 +2,6 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       text-align: center;
       padding-top: 50px;
-      display: block;
     }
     h1 {
       font-size: 2em;
@@ -16,14 +15,14 @@
       padding: 15px 30px;
       font-size: 1.2em;
       margin: 20px;
-      background-color: #11c22f;
+      background-color: #4285f4;
       color: white;
       border: none;
       border-radius: 8px;
       transition: background-color 0.3s;
     }
     button:hover {
-      background-color: #0f8f2b;
+      background-color: #3367d6;
     }
     #message {
       font-size: 1.4em;

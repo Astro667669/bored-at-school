@@ -42,18 +42,19 @@
     }
 
     #startBtn {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      margin: 20px;
-      background-color: #11c22f;
-      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
       border: none;
       border-radius: 8px;
-      transition: background-color 0.3s;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+      margin: 5px;
+      transition: background 0.3s;
     }
 
     #startBtn:hover {
-      background-color: #0f8f2b;
+      background: #43a047;
     }
 
     #resetBtn {

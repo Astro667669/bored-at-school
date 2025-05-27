@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Climb the Everest</title>
+  <link rel="stylesheet" href="./css/bodgethesquares.css">
+  <link rel="stylesheet" href="./css/dark.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #222;
+      color: white;
+      padding: 10px;
+    }
+    canvas {
+      background-image: url("./mont-everest-fond-blanc_908985-40370.jpg");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      display: block;
+      border: 2px solid white;
+      width: 100%;
+      max-width: 1000px;
+      height: auto;
+      aspect-ratio: 5/4; /* Garde une bonne proportion */
+      margin: 0 auto;
+    }
+
+    h1{
+      padding-top: 100px;
+    }
+    h1, h2 {
+      margin: 20px 0;
+    }
+    iframe{
+      max-width: 90%;
+    }
+    #click-btn, #restart {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+    }
+    #progression, #best, #timer, #cps {
+      text-align: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+    #shop {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    #shop div button {
+      width: 100%;
+      max-width: 300px;
+      padding: 10px;
+      font-size: 1rem;
+    }
+    #shop div button {
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #333;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    #shop div button:hover {
+      background-color: #555;
+    }
+
+    @media (max-width: 600px) {
+      #click-btn, #restart {
+        font-size: 1rem;
+        padding: 8px 15px;
+      }
+
+      #shop div button {
+        max-width: 90vw;
+        font-size: 0.9rem;
+      }
+    }
+
+
+
+  </style>
+</head>
+<body>
+
+<a href="index.html" style="
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  background-color: #444;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  z-index: 9999;
+">🏠 Menu</a>
+
+<h1>Extreme Climber!</h1>
+<div id="theme-toggle-container">
+  <button id="theme-toggle" class="dark">🌙 Mode sombre</button>
+</div>
+<h2>Boutique</h2>
+<div id="shop"></div>
+
+<div id="timer">⏱️ Temps : 0s</div>
+<div id="cps">🔥 CPS : 0</div>
+<canvas id="game" width="1000" height="800"></canvas>
+<button id="click-btn">🖱️ Clique pour grimper !</button>
+
+<div id="progression"></div>
+<div id="best"></div>
+<button id="restart" style="display:none;">🔄 Recommencer</button>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const clickBtn = document.getElementById("click-btn");
+const progression = document.getElementById("progression");
+const bestEl = document.getElementById("best");
+const restartBtn = document.getElementById("restart");
+const cpsEl = document.getElementById("cps");
+
+const climberImg = new Image();
+climberImg.src = "sticman.png";
+
+const TOTAL_CLICKS = 8848;
+let startTime = parseInt(localStorage.getItem("climb_start_time")) || Date.now();
+let elapsedTime = parseInt(localStorage.getItem("climb_elapsed_time")) || 0;
+let timerInterval = null;
+let bestTime = parseInt(localStorage.getItem("climb_best_time")) || null;
+
+let doubleClickActive = false;
+let autoClickInterval1 = null;
+let autoClickInterval2 = null;
+let currentClicks = parseInt(localStorage.getItem("climb_clicks")) || 0;
+let climberY = canvas.height - 40;
+let clickHistory = [];
+let flipped = false;
+
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}H ${minutes}M ${seconds}S`;
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  startTime = Date.now() - elapsedTime;
+  timerInterval = setInterval(() => {
+    elapsedTime = Date.now() - startTime;
+    document.getElementById("timer").textContent = `⏱️ Temps : ${formatTime(elapsedTime)}`;
+    localStorage.setItem("climb_elapsed_time", elapsedTime);
+    localStorage.setItem("climb_start_time", startTime);
+  }, 1000);
+}
+
+function drawClimber() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const climberWidth = 30;
+  const climberHeight = 30;
+  const climberX = canvas.width / 2 + 70;
+
+  ctx.save();
+  if (flipped) {
+    ctx.translate(climberX + climberWidth / 2, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(climberImg, -climberWidth / 2, climberY, climberWidth, climberHeight);
+  } else {
+    ctx.drawImage(climberImg, climberX, climberY, climberWidth, climberHeight);
+  }
+  ctx.restore();
+}
+
+function updateProgress() {
+  const percent = Math.min((currentClicks / TOTAL_CLICKS) * 100, 100);
+  progression.textContent = `Progression : ${currentClicks} / ${TOTAL_CLICKS} (${Math.floor(percent)}%)`;
+
+  const bottomY = canvas.height - 20;
+  const topY = 40;
+  climberY = bottomY - ((bottomY - topY) * (currentClicks / TOTAL_CLICKS));
+
+  drawClimber();
+
+  if (currentClicks >= TOTAL_CLICKS) {
+    clickBtn.disabled = true;
+    progression.textContent += " 🏔️ Tu as atteint le sommet !";
+    restartBtn.style.display = "inline-block";
+    clearInterval(timerInterval);
+
+    if (!bestTime || elapsedTime < bestTime) {
+      bestTime = elapsedTime;
+      localStorage.setItem("climb_best_time", bestTime);
+    }
+
+    bestEl.textContent = `Meilleur temps : ${Math.floor(bestTime / 1000)}s`;
+  }
+}
+
+let recentClicks = [];
+
+function updateCPS() {
+  const now = Date.now();
+  recentClicks = recentClicks.filter(t => now - t < 1000);
+
+  if (recentClicks.length > 1) {
+    const intervals = [];
+    for (let i = 1; i < recentClicks.length; i++) {
+      intervals.push(recentClicks[i] - recentClicks[i - 1]);
+    }
+    const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    const cps = 1000 / avgInterval;
+    cpsEl.textContent = `🔥 CPS : ${cps.toFixed(2)}`;
+  } else {
+    cpsEl.textContent = `🔥 CPS : ${recentClicks.length.toFixed(2)}`;
+  }
+}
+
+
+
+setInterval(updateCPS, 200);
+
+clickBtn.addEventListener("click", () => {
+  const now = Date.now();
+  clickHistory = clickHistory.filter(t => now - t < 1000);
+  if (clickHistory.length >= 15) {
+    alert("Tu cliques trop vite poto ! Max 15/sec 🧤");
+    return;
+  }
+
+  let increment = doubleClickActive ? 2 : 1;
+
+  // Malus actifs
+  const malus = clickBtn.dataset.malus;
+
+  if (malus === "halfClicks") {
+    increment = Math.max(1, Math.floor(increment / 2));
+  }
+
+  if (malus === "slowClicks") {
+    const lastClick = parseInt(clickBtn.dataset.lastClick || "0");
+    if (now - lastClick < 500) return;
+    clickBtn.dataset.lastClick = now;
+  }
+
+  clickHistory.push(now);
+  recentClicks.push(now);
+
+  currentClicks += increment;
+  flipped = !flipped;
+
+  localStorage.setItem("climb_clicks", currentClicks);
+  if (currentClicks >= TOTAL_CLICKS && !timerInterval) clearInterval(timerInterval);
+  updateProgress();
+  renderShop();
+});
+
+
+restartBtn.addEventListener("click", () => {
+  currentClicks = 0;
+  localStorage.setItem("climb_clicks", currentClicks);
+  startTime = Date.now();
+  elapsedTime = 0;
+  localStorage.setItem("climb_start_time", startTime);
+  localStorage.setItem("climb_elapsed_time", 0);
+  clearInterval(timerInterval);
+  timerInterval = null;
+  clickBtn.disabled = false;
+  restartBtn.style.display = "none";
+
+  // --- Reset upgrades ---
+  purchasedItems = [];
+  localStorage.removeItem("climb_purchases");
+
+  doubleClickActive = false;
+  clearInterval(autoClickInterval1);
+  autoClickInterval1 = null;
+  clearInterval(autoClickInterval2);
+  autoClickInterval2 = null;
+
+  delete clickBtn.dataset.malus;
+  localStorage.removeItem("climb_malus");
+
+  updateProgress();
+  renderShop();
+  startTimer();
+});
+
+
+const shopItems = [
+  {
+    id: "doubleClick",
+    name: "Double Clic",
+    description: "Chaque clic compte double",
+    cost: 400,
+    effect: () => { doubleClickActive = true; }
+  },
+  {
+    id: "autoClick",
+    name: "1 clic /2s",
+    description: "Ajoute 1 clic par seconde",
+    cost: 1000,
+    effect: () => {
+      if (!autoClickInterval1) {
+        autoClickInterval1 = setInterval(() => {
+          currentClicks++;
+          localStorage.setItem("climb_clicks", currentClicks);
+          updateProgress();
+        }, 2000);
+      }
+    }
+  },
+  {
+    id: "autoClick2",
+    name: "2 clic /2s",
+    description: "Ajoute 1 clic par seconde",
+    cost: 1800,
+    effect: () => {
+      if (!autoClickInterval2) {
+        autoClickInterval2 = setInterval(() => {
+          currentClicks += 2;
+          localStorage.setItem("climb_clicks", currentClicks);
+          updateProgress();
+        }, 2000);
+      }
+    }
+  },
+  {
+  id: "fakeUpgrade1",
+  name: "Gants ",
+  description: "Augmente la stabilité",
+  cost: 500,
+  effect: () => {
+    clickBtn.dataset.malus = "halfClicks";
+    localStorage.setItem("climb_malus", "halfClicks");
+  }
+
+},
+{
+  id: "fakeUpgrade2",
+  name: "Grip",
+  description: "Améliore l'adhérence",
+  cost: 800,
+  effect: () => {
+    clickBtn.dataset.malus = "slowClicks";
+    localStorage.setItem("climb_malus", "slowClicks");
+  }
+
+},
+{
+  id: "antidote1",
+  name: "Dissolvant magique",
+  description: "Neutralise Les Gants",
+  cost: 1000,
+  effect: () => {
+  if (clickBtn.dataset.malus === "halfClicks") {
+    delete clickBtn.dataset.malus;
+    localStorage.removeItem("climb_malus");
+  }
+}
+
+},
+{
+  id: "antidote2",
+  name: "Dégrippant Extrême",
+  description: "Enlève les effets du Grip",
+  cost: 1500,
+  effect: () => {
+    if (clickBtn.dataset.malus === "slowClicks") {
+      delete clickBtn.dataset.malus;
+      localStorage.removeItem("antidote2")
+    }
+  }
+}
+
+];
+
+let purchasedItems = JSON.parse(localStorage.getItem("climb_purchases")) || [];
+
+function renderShop() {
+  const shopContainer = document.getElementById("shop");
+  shopContainer.innerHTML = "";
+  shopItems.forEach(item => {
+    const bought = purchasedItems.includes(item.id);
+    const button = document.createElement("button");
+    button.textContent = `${item.name} (${item.cost} clics)`;
+    button.disabled = bought || currentClicks < item.cost;
+    button.title = item.description;
+    button.addEventListener("click", () => {
+      if (currentClicks >= item.cost && !bought) {
+        currentClicks -= item.cost;
+        item.effect();
+        purchasedItems.push(item.id);
+        localStorage.setItem("climb_purchases", JSON.stringify(purchasedItems));
+        localStorage.setItem("climb_clicks", currentClicks);
+        updateProgress();
+        renderShop();
+      }
+    });
+    if (!bought) {
+      const itemDiv = document.createElement("div");
+      itemDiv.appendChild(button);
+      shopContainer.appendChild(itemDiv);
+    }
+  });
+}
+
+drawClimber();
+updateProgress();
+renderShop();
+const savedMalus = localStorage.getItem("climb_malus");
+if (savedMalus) {
+  clickBtn.dataset.malus = savedMalus;
+}
+
+purchasedItems.forEach(id => {
+  const item = shopItems.find(i => i.id === id);
+  if (item) item.effect();
+});
+startTimer();
+</script>
+
+<script src="./js/dark.js"></script>
+<script src="./js/stealth.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2810189862013244" crossorigin="anonymous"></script>
+<script type="text/javascript">
+  atOptions = {
+    'key': 'c86e387157f60d5125b9bd69ed6b7980',
+    'format': 'iframe',
+    'height': 60,
+    'width': 468,
+    'params': {}
+  };
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/c86e387157f60d5125b9bd69ed6b7980/invoke.js"></script>
+<script type="text/javascript">
+	atOptions = {
+		'key' : 'cfda0322c19803b8d20336dbcfd5a7a3',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/cfda0322c19803b8d20336dbcfd5a7a3/invoke.js"></script>
+</body>
+</html>
