@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ligne la Plus Droite</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #111;
+      color: white;
+    }
+
+    canvas {
+      border: 2px solid white;
+      margin-top: 20px;
+      cursor: crosshair;
+      background: #222;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trace la ligne la plus droite possible</h1>
+  <canvas id="canvas" width="600" height="400"></canvas>
+  <div id="result">Clique et tire pour dessiner une ligne droite !</div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const result = document.getElementById('result');
+
+    let isDrawing = false;
+    let points = [];
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      points = [{ x: e.offsetX, y: e.offsetY }];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDrawing) {
+        points.push({ x: e.offsetX, y: e.offsetY });
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawLine(points, 'cyan');
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      isDrawing = false;
+      if (points.length < 2) return;
+
+      const start = points[0];
+      const end = points[points.length - 1];
+      const distance = Math.hypot(end.x - start.x, end.y - start.y);
+
+      if (distance < 50) {
+        result.innerHTML = `❌ Ligne trop courte (${distance.toFixed(1)} px). Minimum : 50px`;
+        return;
+      }
+
+      drawLine(points, 'cyan');
+
+      // Droite parfaite
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+
+      const maxDeviation = calculateDeviation(points, start, end);
+      const best = parseFloat(localStorage.getItem('bestStraight') || '9999');
+      if (maxDeviation < best) {
+        localStorage.setItem('bestStraight', maxDeviation.toFixed(2));
+        result.innerHTML = `👏 Nouvelle meilleure ligne ! Déviation max : ${maxDeviation.toFixed(2)} px`;
+      } else {
+        result.innerHTML = `😅 Déviation max : ${maxDeviation.toFixed(2)} px<br>🏆 Meilleur score : ${best.toFixed(2)} px`;
+      }
+    });
+
+    function drawLine(points, color) {
+      if (points.length < 2) return;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let p of points) {
+        ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+    }
+
+    function calculateDeviation(points, start, end) {
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const lengthSquared = dx * dx + dy * dy;
+      let maxDist = 0;
+
+      for (let p of points) {
+        const t = ((p.x - start.x) * dx + (p.y - start.y) * dy) / lengthSquared;
+        const closestX = start.x + t * dx;
+        const closestY = start.y + t * dy;
+        const dist = Math.hypot(p.x - closestX, p.y - closestY);
+        if (dist > maxDist) maxDist = dist;
+      }
+      return maxDist;
+    }
+  </script>
+</body>
+</html>
