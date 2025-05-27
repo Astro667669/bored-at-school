@@ -199,8 +199,11 @@ function initGame() {
     platforms.push(createPlatform(canvas.height - i * 60, i === 0));
   }
 
+  player.vy = jumpPower * 0.1; // 💥 Big jump au départ !
+
   update();
 }
+
 
 function createPlatform(y, ensureSafe = false) {
   const width = 60;
